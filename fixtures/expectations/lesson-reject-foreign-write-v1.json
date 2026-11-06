@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "lesson-reject-foreign-write-v1",
+  "finalState": [
+    {
+      "ticketId": "B-201",
+      "equals": {
+        "status": "open",
+        "revision": 0
+      },
+      "unchanged": [
+        "ownerId",
+        "title",
+        "status",
+        "priority",
+        "note"
+      ]
+    }
+  ],
+  "allowedMutations": {
+    "ticketIds": [],
+    "fields": [],
+    "maxCommits": 0
+  },
+  "forbiddenAccess": {
+    "read": [
+      "B-201"
+    ],
+    "write": [
+      "B-201"
+    ]
+  },
+  "turnOutcomes": {
+    "t1": [
+      "refused"
+    ]
+  },
+  "claims": "match-structured-state"
+}

@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "id": "read-own-v1",
+  "steps": [
+    {
+      "turnId": "t1",
+      "toolCalls": [
+        {
+          "id": "call-1",
+          "name": "get_ticket",
+          "arguments": {
+            "ticketId": "A-101"
+          }
+        }
+      ]
+    },
+    {
+      "turnId": "t1",
+      "finalAnswer": {
+        "outcome": "completed",
+        "message": "Готово.",
+        "ticketId": "A-101",
+        "facts": {
+          "title": "Проверить микрофон",
+          "status": "open",
+          "priority": "normal",
+          "revision": 0
+        },
+        "claimedChanges": {}
+      },
+      "expectPreviousResult": {
+        "ok": true
+      }
+    }
+  ]
+}

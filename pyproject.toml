@@ -1,0 +1,47 @@
+[build-system]
+requires = ["hatchling==1.27.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "llm-test-lab"
+version = "0.1.0a1"
+description = "A local, evidence-first lab for LLM agent quality, security and reliability."
+readme = "README.md"
+requires-python = ">=3.13,<3.15"
+license = "MIT"
+dependencies = ["pydantic>=2.12,<3", "httpx>=0.28,<0.29"]
+
+[project.scripts]
+lab = "llm_test_lab.cli:main"
+
+[dependency-groups]
+dev = ["pytest>=8.4,<10", "pytest-asyncio>=1.2,<2", "ruff>=0.14,<1", "mypy>=1.18,<2", "pytest-cov>=7,<8"]
+
+[tool.hatch.build]
+# Explicit excludes follow VCS patterns: !.env.example must never re-include
+# nested installation/cache files in an sdist.
+exclude = ["/.lab-state/", "/.venv/", "/runs/", "/dist/", "**/node_modules/"]
+skip-excluded-dirs = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/llm_test_lab"]
+
+[tool.ruff]
+target-version = "py313"
+line-length = 100
+extend-exclude = [".lab-state", ".venv", "node_modules", "runs", "dist"]
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I", "UP"]
+
+[tool.mypy]
+python_version = "3.13"
+strict = true
+plugins = ["pydantic.mypy"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["tests/unit", "tests/contracts", "tests/fixtures"]
+markers = ["integration: real Promptfoo subprocess contract", "live: explicit model access, excluded from default runs"]
+addopts = "-ra"

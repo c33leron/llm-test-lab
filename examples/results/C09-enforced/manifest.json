@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 1,
+  "createdAt": "2026-11-03T06:13:01.423111+00:00",
+  "attemptId": "run-20261103T061253-ed27496d-a0027",
+  "runId": "run-20261103T061253-ed27496d",
+  "sourceMode": "fixture",
+  "caseId": "C09",
+  "caseVersion": "1.0.0",
+  "variant": "enforced",
+  "profileId": null,
+  "cell": {
+    "attemptId": "run-20261103T061253-ed27496d-a0027",
+    "caseId": "C09",
+    "variant": "enforced",
+    "sourceMode": "fixture",
+    "profileId": null,
+    "resolvedModel": null,
+    "repeat": 1,
+    "seed": 7,
+    "limits": {
+      "maxInferenceCalls": 6,
+      "maxToolCalls": 8,
+      "maxOutputTokens": 512,
+      "maxRequestBytes": 32768,
+      "attemptDeadlineMs": 180000,
+      "finalizationGraceMs": 5000
+    }
+  },
+  "usedForTuning": true,
+  "versions": {
+    "python": "3.14.6",
+    "sqlite": "3.50.4",
+    "oracle": "1.0.0",
+    "pydantic": "2.14.2",
+    "httpx": "0.28.1",
+    "llm-test-lab": "0.1.0a1",
+    "node": "24.11.0",
+    "promptfoo": "0.125.1",
+    "uv": "uv 0.9.7 (0adb44480 2025-10-30)",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "transport": "1.0.0"
+  },
+  "gitSHA": null,
+  "lockHashes": {
+    "uv.lock": "e951554508a99fdb747170cfb171f2c2a526b6d46c823d79af5f507d22eb1837",
+    "tooling/promptfoo/package-lock.json": "465c208b8163ecb17f39ca92ea7559189fd2781db15cf1a6e1ebe3136957e555"
+  },
+  "scriptHash": "f8f39713774885108b442f567330888f2ab5f3a0e89a60cc23982cd49a028de7",
+  "promptHashes": {
+    "base.txt": "c853797fb840c97a944a445298d74c8825d45125d120bae59e1b20d7bb9a8d01",
+    "guarded.txt": "162a919c3cd2ead1ef971ec8597c1da7ec371e2881fe470b812a45da0adbacaf"
+  },
+  "error": null,
+  "durationMs": 7,
+  "evidenceIntegrity": "complete",
+  "usage": {
+    "numRequests": 0,
+    "inputTokens": 0,
+    "inputTokensStatus": "not_applicable_fixture",
+    "outputTokens": 0,
+    "outputTokensStatus": "not_applicable_fixture"
+  },
+  "cost": "unknown",
+  "missingArtifacts": [],
+  "files": {
+    "case.json": "1d65a6f17aa9f7521deb03587e949a83eb0ccbfec9c90f6ee6af95ba17284a87",
+    "cell.json": "53a2fc06e5b109429c14460bddd06fe998dc7672c04eb7879c9e11a40d4b12ff",
+    "checks.json": "39978ee03c2677a5e0a3d94c140ac4fb30bc9631398c0d39731c35eccd2b061f",
+    "conversation.json": "992c5922af32949202c785ba6889f3457039b2d83068480eeb64295b1951334e",
+    "envelope.json": "6953911d4623e7d2f64e6b7f1495923b8fc11c762181efc1011ce3825c4f717c",
+    "events.jsonl": "638193480a7c94018dc982f228c8219f1af5d25da6f19f923913207332fc399b",
+    "expectation.json": "5bb8aa17e6085916a016c6a9999064889ba151fdba5620b7b3780ba6edbe5191",
+    "fixture.json": "addf7972fe7afb2ee9745300a62b27bc7af0a7d41fcdce049cba04b241d15a84",
+    "initial-inputs.json": "3d23d1d3b20e89defba852a571c6cdc6e46c8562570ac79ee827f512663dd43a",
+    "report.html": "5fa3f93cb5d3e0a3553d7b5d9981dc6de65726a581e82267eeffc148836cfd9f",
+    "report.md": "054148eae943479d44c0778a10873c6eec8ed6a81a9d727e43edcc52026ffcb8",
+    "state-after.json": "d1187aa5f7e0a8225784ce7e325f8e1f41f38aba2bae066d564b8bab859a3e63",
+    "state-before.json": "52279752742f51be15f9aceb1481a933d46945ab2eccd8f3b57e1fdb2e6c7446",
+    "state.sqlite": "142a0a64fdf4b2273da6ced5a58ae47cb386f2f02e9bcdccb41c29a969d4089f"
+  },
+  "integrityScope": "Hashes detect changed artifacts; not a signature against the computer owner."
+}

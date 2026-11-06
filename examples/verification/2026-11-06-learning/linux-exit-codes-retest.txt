@@ -1,0 +1,11 @@
+doctor-retest 0
+network-deny-retest 0
+ruff-retest 0
+format-retest 0
+mypy-retest 0
+schema-retest 0
+docs-retest 0
+learning-process-targeted 0
+pytest-retest 0
+smoke-final 0
+core-final 0

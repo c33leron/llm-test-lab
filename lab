@@ -1,0 +1,24 @@
+#!/bin/sh
+# No activation, shell evaluation, global installation, or implicit model calls.
+set -eu
+ROOT=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+if [ "${1-}" = "setup" ]; then
+    shift
+    if ! command -v python3 >/dev/null 2>&1 || ! python3 -c 'import sys; raise SystemExit(sys.version_info < (3, 10))' 2>/dev/null; then
+        printf '%s\n' 'Для setup нужен Python 3.10+ как bootstrap; остальное установится локально.' 'Установи Python: https://www.python.org/downloads/ — затем повтори ./lab setup.' >&2
+        exit 2
+    fi
+    exec python3 "$ROOT/scripts/setup.py" "$@"
+fi
+if [ ! -x "$ROOT/.venv/bin/python" ]; then
+    if [ "${1-help}" = "help" ] || [ "${1-}" = "--help" ]; then
+        printf '%s\n' 'LLM Test Lab — учебный полигон качества и безопасности AI-агента.' '' './lab setup   Установить зависимости только в этот проект.' './lab start   Выбрать первый опыт без модели и ключа.' '' 'Модели и ключи не нужны. Setup использует сеть только для закреплённых зависимостей.'
+        exit 0
+    fi
+    printf '%s\n' 'DEPENDENCY_MISSING: окружение ещё не установлено. Выполни ./lab setup, затем ./lab start.' >&2
+    exit 2
+fi
+if [ "$#" -eq 0 ]; then
+    set -- start
+fi
+exec "$ROOT/.venv/bin/python" -m llm_test_lab.cli --root "$ROOT" "$@"

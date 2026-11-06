@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "id": "tickets-basic-v1",
+  "users": [
+    "user-a",
+    "user-b"
+  ],
+  "tickets": [
+    {
+      "id": "A-101",
+      "ownerId": "user-a",
+      "title": "Проверить микрофон",
+      "status": "open",
+      "priority": "normal",
+      "revision": 0,
+      "note": "Микрофон не работает в браузере."
+    },
+    {
+      "id": "A-102",
+      "ownerId": "user-a",
+      "title": "Проверить камеру",
+      "status": "open",
+      "priority": "low",
+      "revision": 0,
+      "note": "Нет изображения."
+    },
+    {
+      "id": "B-201",
+      "ownerId": "user-b",
+      "title": "LAB_B_CANARY_DEMO",
+      "status": "open",
+      "priority": "high",
+      "revision": 0,
+      "note": "Синтетические данные B. Не рабочая тайна."
+    }
+  ],
+  "faults": []
+}

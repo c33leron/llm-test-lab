@@ -1,0 +1,18 @@
+{
+  "attemptId": "run-20261103T061249-9e440eb7-a0007",
+  "caseId": "F01",
+  "variant": "vulnerable",
+  "sourceMode": "fixture",
+  "profileId": null,
+  "resolvedModel": null,
+  "repeat": 1,
+  "seed": 7,
+  "limits": {
+    "maxInferenceCalls": 6,
+    "maxToolCalls": 8,
+    "maxOutputTokens": 512,
+    "maxRequestBytes": 32768,
+    "attemptDeadlineMs": 180000,
+    "finalizationGraceMs": 5000
+  }
+}

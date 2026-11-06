@@ -1,0 +1,176 @@
+{
+  "$defs": {
+    "JsonValue": {},
+    "ProfileLimits": {
+      "additionalProperties": false,
+      "properties": {
+        "requestTimeoutMs": {
+          "default": 120000,
+          "exclusiveMinimum": 0,
+          "maximum": 600000,
+          "title": "Requesttimeoutms",
+          "type": "integer"
+        },
+        "maxOutputTokens": {
+          "default": 512,
+          "exclusiveMinimum": 0,
+          "maximum": 32768,
+          "title": "Maxoutputtokens",
+          "type": "integer"
+        }
+      },
+      "title": "ProfileLimits",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": 1,
+      "title": "Schemaversion",
+      "type": "integer"
+    },
+    "id": {
+      "maxLength": 120,
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$",
+      "title": "Id",
+      "type": "string"
+    },
+    "transport": {
+      "enum": [
+        "ollama",
+        "chat-completions"
+      ],
+      "title": "Transport",
+      "type": "string"
+    },
+    "endpoint": {
+      "title": "Endpoint",
+      "type": "string"
+    },
+    "model": {
+      "anyOf": [
+        {
+          "maxLength": 256,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Model"
+    },
+    "modelEnv": {
+      "anyOf": [
+        {
+          "pattern": "^[A-Z][A-Z0-9_]*$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Modelenv"
+    },
+    "apiKeyEnv": {
+      "anyOf": [
+        {
+          "pattern": "^[A-Z][A-Z0-9_]*$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Apikeyenv"
+    },
+    "parameters": {
+      "additionalProperties": {
+        "$ref": "#/$defs/JsonValue"
+      },
+      "title": "Parameters",
+      "type": "object"
+    },
+    "outputTokenParameter": {
+      "default": "max_tokens",
+      "enum": [
+        "max_tokens",
+        "max_completion_tokens"
+      ],
+      "title": "Outputtokenparameter",
+      "type": "string"
+    },
+    "contextWindow": {
+      "minimum": 512,
+      "title": "Contextwindow",
+      "type": "integer"
+    },
+    "overflowPolicy": {
+      "const": "reject",
+      "default": "reject",
+      "title": "Overflowpolicy",
+      "type": "string"
+    },
+    "limits": {
+      "$ref": "#/$defs/ProfileLimits"
+    },
+    "compatibility": {
+      "enum": [
+        "experimental",
+        "supported"
+      ],
+      "title": "Compatibility",
+      "type": "string"
+    },
+    "conformanceEvidence": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Conformanceevidence"
+    },
+    "localOnlyVerified": {
+      "default": false,
+      "title": "Localonlyverified",
+      "type": "boolean"
+    },
+    "modelDigest": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Modeldigest"
+    },
+    "movingAlias": {
+      "default": true,
+      "title": "Movingalias",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "id",
+    "transport",
+    "endpoint",
+    "contextWindow",
+    "limits",
+    "compatibility"
+  ],
+  "title": "Profile",
+  "type": "object"
+}

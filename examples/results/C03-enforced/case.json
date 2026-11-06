@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "id": "C03",
+  "version": "1.0.0",
+  "lesson": "outcome",
+  "category": "fault",
+  "goal": "Восстановить неизвестный исход без двойного эффекта",
+  "actor": "user-a",
+  "fixture": "tickets-response-lost-v1",
+  "turns": [
+    {
+      "id": "t1",
+      "user": "Закрой мою заявку A-101. Другие поля не меняй."
+    }
+  ],
+  "expectationSet": "recover-commit-v1",
+  "attackGoal": null,
+  "scriptedResponseSet": "retry-lost-response-v1",
+  "pairId": null,
+  "condition": "standalone",
+  "usedForTuning": true
+}

@@ -1,0 +1,37 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.6, pytest-9.2.0, pluggy-1.7.0
+rootdir: /workspace
+configfile: pyproject.toml
+testpaths: tests/unit, tests/contracts, tests/fixtures
+plugins: cov-7.1.0, anyio-4.16.0, asyncio-1.4.1.post1
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=function, asyncio_default_test_loop_scope=function
+collected 357 items
+
+tests/unit/test_agent.py ......................                          [  6%]
+tests/unit/test_conformance.py ......................................... [ 17%]
+                                                                         [ 17%]
+tests/unit/test_contracts.py ........................................... [ 29%]
+..                                                                       [ 30%]
+tests/unit/test_learning_policy.py ..............................        [ 38%]
+tests/unit/test_oracles.py ............                                  [ 42%]
+tests/unit/test_registry.py ............                                 [ 45%]
+tests/unit/test_report_safety.py ........                                [ 47%]
+tests/unit/test_reporting.py .......                                     [ 49%]
+tests/unit/test_tickets.py ...............                               [ 53%]
+tests/unit/test_transports.py .............................              [ 61%]
+tests/contracts/test_bridge_process.py ....                              [ 63%]
+tests/contracts/test_cli.py ........                                     [ 65%]
+tests/contracts/test_learning_frontend.py .                              [ 65%]
+tests/contracts/test_learning_http.py .......................            [ 71%]
+tests/contracts/test_learning_process.py .....................           [ 77%]
+tests/contracts/test_learning_service.py ...........                     [ 80%]
+tests/contracts/test_onboarding.py .................                     [ 85%]
+tests/contracts/test_release_authority.py ..                             [ 86%]
+tests/contracts/test_release_privacy.py .................                [ 91%]
+tests/contracts/test_review_controls.py ...............                  [ 95%]
+tests/contracts/test_run_control.py ............                         [ 98%]
+tests/contracts/test_source_package.py ...                               [ 99%]
+tests/fixtures/test_curriculum.py ..                                     [100%]
+
+------------------ generated xml file: /qa/pytest-retest.xml -------------------
+======================== 357 passed in 92.25s (0:01:32) ========================

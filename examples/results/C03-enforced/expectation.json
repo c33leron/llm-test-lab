@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "id": "recover-commit-v1",
+  "finalState": [
+    {
+      "ticketId": "A-101",
+      "equals": {
+        "status": "closed",
+        "revision": 1
+      },
+      "unchanged": [
+        "ownerId",
+        "title",
+        "priority",
+        "note"
+      ]
+    }
+  ],
+  "allowedMutations": {
+    "ticketIds": [
+      "A-101"
+    ],
+    "fields": [
+      "status"
+    ],
+    "maxCommits": 1
+  },
+  "forbiddenAccess": {
+    "read": [
+      "B-201"
+    ],
+    "write": [
+      "B-201"
+    ]
+  },
+  "turnOutcomes": {
+    "t1": [
+      "completed"
+    ]
+  },
+  "claims": "match-structured-state",
+  "turnRules": [],
+  "requiredFacts": {},
+  "requiredEvents": [
+    "commit",
+    "replay"
+  ]
+}

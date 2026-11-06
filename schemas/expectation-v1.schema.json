@@ -1,0 +1,238 @@
+{
+  "$defs": {
+    "AllowedMutations": {
+      "additionalProperties": false,
+      "properties": {
+        "ticketIds": {
+          "items": {
+            "maxLength": 120,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$",
+            "type": "string"
+          },
+          "title": "Ticketids",
+          "type": "array"
+        },
+        "fields": {
+          "items": {
+            "$ref": "#/$defs/MutableField"
+          },
+          "title": "Fields",
+          "type": "array"
+        },
+        "maxCommits": {
+          "minimum": 0,
+          "title": "Maxcommits",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "ticketIds",
+        "fields",
+        "maxCommits"
+      ],
+      "title": "AllowedMutations",
+      "type": "object"
+    },
+    "ForbiddenAccess": {
+      "additionalProperties": false,
+      "properties": {
+        "read": {
+          "items": {
+            "maxLength": 120,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$",
+            "type": "string"
+          },
+          "title": "Read",
+          "type": "array"
+        },
+        "write": {
+          "items": {
+            "maxLength": 120,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$",
+            "type": "string"
+          },
+          "title": "Write",
+          "type": "array"
+        }
+      },
+      "required": [
+        "read",
+        "write"
+      ],
+      "title": "ForbiddenAccess",
+      "type": "object"
+    },
+    "JsonValue": {},
+    "MutableField": {
+      "enum": [
+        "title",
+        "status",
+        "priority"
+      ],
+      "type": "string"
+    },
+    "Outcome": {
+      "enum": [
+        "completed",
+        "needs_clarification",
+        "refused",
+        "failed"
+      ],
+      "type": "string"
+    },
+    "StateExpectation": {
+      "additionalProperties": false,
+      "properties": {
+        "ticketId": {
+          "maxLength": 120,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$",
+          "title": "Ticketid",
+          "type": "string"
+        },
+        "equals": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "propertyNames": {
+            "$ref": "#/$defs/TicketField"
+          },
+          "title": "Equals",
+          "type": "object"
+        },
+        "unchanged": {
+          "items": {
+            "$ref": "#/$defs/TicketField"
+          },
+          "title": "Unchanged",
+          "type": "array"
+        }
+      },
+      "required": [
+        "ticketId",
+        "equals"
+      ],
+      "title": "StateExpectation",
+      "type": "object"
+    },
+    "TicketField": {
+      "enum": [
+        "id",
+        "ownerId",
+        "title",
+        "status",
+        "priority",
+        "revision",
+        "note"
+      ],
+      "type": "string"
+    },
+    "TurnEventRule": {
+      "additionalProperties": false,
+      "properties": {
+        "turnId": {
+          "maxLength": 120,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$",
+          "title": "Turnid",
+          "type": "string"
+        },
+        "maxCommits": {
+          "minimum": 0,
+          "title": "Maxcommits",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "turnId",
+        "maxCommits"
+      ],
+      "title": "TurnEventRule",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": 1,
+      "title": "Schemaversion",
+      "type": "integer"
+    },
+    "id": {
+      "maxLength": 120,
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$",
+      "title": "Id",
+      "type": "string"
+    },
+    "finalState": {
+      "items": {
+        "$ref": "#/$defs/StateExpectation"
+      },
+      "title": "Finalstate",
+      "type": "array"
+    },
+    "allowedMutations": {
+      "$ref": "#/$defs/AllowedMutations"
+    },
+    "forbiddenAccess": {
+      "$ref": "#/$defs/ForbiddenAccess"
+    },
+    "turnOutcomes": {
+      "additionalProperties": {
+        "items": {
+          "$ref": "#/$defs/Outcome"
+        },
+        "type": "array"
+      },
+      "title": "Turnoutcomes",
+      "type": "object"
+    },
+    "claims": {
+      "const": "match-structured-state",
+      "title": "Claims",
+      "type": "string"
+    },
+    "turnRules": {
+      "items": {
+        "$ref": "#/$defs/TurnEventRule"
+      },
+      "title": "Turnrules",
+      "type": "array"
+    },
+    "requiredFacts": {
+      "additionalProperties": {
+        "additionalProperties": {
+          "$ref": "#/$defs/JsonValue"
+        },
+        "propertyNames": {
+          "$ref": "#/$defs/TicketField"
+        },
+        "type": "object"
+      },
+      "title": "Requiredfacts",
+      "type": "object"
+    },
+    "requiredEvents": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Requiredevents",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "id",
+    "finalState",
+    "allowedMutations",
+    "forbiddenAccess",
+    "turnOutcomes",
+    "claims"
+  ],
+  "title": "ExpectationSet",
+  "type": "object"
+}

@@ -1,0 +1,258 @@
+{
+  "$defs": {
+    "FinalAnswer": {
+      "additionalProperties": false,
+      "properties": {
+        "outcome": {
+          "$ref": "#/$defs/Outcome"
+        },
+        "message": {
+          "maxLength": 16000,
+          "title": "Message",
+          "type": "string"
+        },
+        "ticketId": {
+          "anyOf": [
+            {
+              "maxLength": 120,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Ticketid"
+        },
+        "facts": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "$ref": "#/$defs/JsonValue"
+              },
+              "propertyNames": {
+                "$ref": "#/$defs/TicketField"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Facts"
+        },
+        "claimedChanges": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "propertyNames": {
+            "$ref": "#/$defs/MutableField"
+          },
+          "title": "Claimedchanges",
+          "type": "object"
+        }
+      },
+      "required": [
+        "outcome",
+        "message",
+        "ticketId",
+        "facts",
+        "claimedChanges"
+      ],
+      "title": "FinalAnswer",
+      "type": "object"
+    },
+    "JsonValue": {},
+    "MutableField": {
+      "enum": [
+        "title",
+        "status",
+        "priority"
+      ],
+      "type": "string"
+    },
+    "Outcome": {
+      "enum": [
+        "completed",
+        "needs_clarification",
+        "refused",
+        "failed"
+      ],
+      "type": "string"
+    },
+    "ScriptStep": {
+      "additionalProperties": false,
+      "properties": {
+        "turnId": {
+          "maxLength": 120,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$",
+          "title": "Turnid",
+          "type": "string"
+        },
+        "variants": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/Variant"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Variants"
+        },
+        "toolCalls": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/ToolCall"
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Toolcalls"
+        },
+        "finalAnswer": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FinalAnswer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "terminalState": {
+          "anyOf": [
+            {
+              "enum": [
+                "timeout",
+                "provider_error",
+                "cancelled"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Terminalstate"
+        },
+        "expectPreviousResult": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "$ref": "#/$defs/JsonValue"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Expectpreviousresult"
+        }
+      },
+      "required": [
+        "turnId"
+      ],
+      "title": "ScriptStep",
+      "type": "object"
+    },
+    "TicketField": {
+      "enum": [
+        "id",
+        "ownerId",
+        "title",
+        "status",
+        "priority",
+        "revision",
+        "note"
+      ],
+      "type": "string"
+    },
+    "ToolCall": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "maxLength": 256,
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "name": {
+          "maxLength": 120,
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "arguments": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "title": "Arguments",
+          "type": "object"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "arguments"
+      ],
+      "title": "ToolCall",
+      "type": "object"
+    },
+    "Variant": {
+      "enum": [
+        "vulnerable",
+        "prompt_only",
+        "enforced",
+        "learning"
+      ],
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": 1,
+      "title": "Schemaversion",
+      "type": "integer"
+    },
+    "id": {
+      "maxLength": 120,
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$",
+      "title": "Id",
+      "type": "string"
+    },
+    "steps": {
+      "items": {
+        "$ref": "#/$defs/ScriptStep"
+      },
+      "minItems": 1,
+      "title": "Steps",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "id",
+    "steps"
+  ],
+  "title": "ScriptedResponseSet",
+  "type": "object"
+}

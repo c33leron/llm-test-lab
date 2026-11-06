@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "id": "local-reference",
+  "transport": "ollama",
+  "endpoint": "http://127.0.0.1:11434",
+  "modelEnv": "LLM_LAB_LOCAL_MODEL",
+  "parameters": {
+    "temperature": 0
+  },
+  "contextWindow": 8192,
+  "overflowPolicy": "reject",
+  "limits": {
+    "requestTimeoutMs": 120000,
+    "maxOutputTokens": 512
+  },
+  "compatibility": "experimental",
+  "localOnlyVerified": false
+}

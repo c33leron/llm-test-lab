@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "clarify-v1",
+  "steps": [
+    {
+      "turnId": "t1",
+      "finalAnswer": {
+        "outcome": "needs_clarification",
+        "message": "Уточните заявку: A-101 или A-102? До уточнения ничего не меняю.",
+        "ticketId": null,
+        "facts": null,
+        "claimedChanges": {}
+      }
+    }
+  ]
+}

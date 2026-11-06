@@ -1,0 +1,54 @@
+{
+  "date": "2026-11-06",
+  "scope": "technical alpha; full v0.1 not accepted",
+  "implementationFingerprint": "43f4c55ebdda8bc8386cfd402deb6f5dc205dc499d905058119151dfe3570c39",
+  "tests": {
+    "macosArm64": 270,
+    "linuxAmd64DockerEmulated": 270
+  },
+  "liveModelRequests": 0,
+  "fixtureRuns": [
+    {
+      "runId": "run-20261106T142712-96e48b24",
+      "platform": "macos-arm64",
+      "exitCode": 0
+    },
+    {
+      "runId": "run-20261106T142715-95982e7f",
+      "platform": "macos-arm64",
+      "exitCode": 0
+    },
+    {
+      "runId": "run-20261106T142727-027966c2",
+      "platform": "macos-arm64",
+      "exitCode": 3
+    },
+    {
+      "runId": "run-20261106T142739-038ebbfb",
+      "platform": "linux-amd64-docker",
+      "exitCode": 0
+    },
+    {
+      "runId": "run-20261106T142751-7fd98c9c",
+      "platform": "linux-amd64-docker",
+      "exitCode": 0
+    }
+  ],
+  "blockers": [
+    "live-local conformance and reference coverage",
+    "live-cloud conformance and reference coverage",
+    "96-cell live reference matrix",
+    "two independent human first-use observations",
+    "loopback-only Promptfoo viewer requirement; static reports used"
+  ],
+  "files": {
+    "accepted-core-macos.json": "77a28f43f6537a36423e7baf79333d5adf8781a0f3c39952d7ec06396e1e0bfd",
+    "accepted-linux-core.json": "613aa4319136df19e52bef52e386f805b74bbaf1be33b4ae0afb4d9dd8130e27",
+    "accepted-linux-smoke.json": "e57df4e6a9a3c8fa6be25385f0a0a861f677e8a99dd24839d860c5dfb00bfe58",
+    "accepted-smoke-macos.json": "3313ce1ef2bba976e90f6cf0b60234c15c8e42a89c3ed32867d7beb373ee377b",
+    "accepted-timeout-macos.json": "f3a70fb7ea392e5fe83edd421822ba7108e58565840f1c4cf92d698c37524358",
+    "bootstrap310.json": "20e4ea4d02d322f189313a96250b8af153b9d7485b83e96a93beee65288ccb88",
+    "checks-linux.txt": "a2dccef68e7283219508231519e29b1ed6f05162067cae9b5a45df9ebb832fb5",
+    "pytest-macos.txt": "d36b33418a09c09ed245b955075b99c177ef73f1b978fa5552cde6d8c8d7ca52"
+  }
+}

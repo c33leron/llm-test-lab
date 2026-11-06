@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "id": "reject-stale-write-v1",
+  "steps": [
+    {
+      "turnId": "t1",
+      "toolCalls": [
+        {
+          "id": "call-1",
+          "name": "get_ticket",
+          "arguments": {
+            "ticketId": "A-101"
+          }
+        }
+      ]
+    },
+    {
+      "turnId": "t1",
+      "toolCalls": [
+        {
+          "id": "call-2",
+          "name": "update_ticket",
+          "arguments": {
+            "ticketId": "A-101",
+            "expectedRevision": 0,
+            "patch": {
+              "status": "closed"
+            }
+          }
+        }
+      ],
+      "expectPreviousResult": {
+        "ok": true,
+        "data": {
+          "revision": 0
+        }
+      }
+    },
+    {
+      "turnId": "t1",
+      "toolCalls": [
+        {
+          "id": "call-3",
+          "name": "get_ticket",
+          "arguments": {
+            "ticketId": "A-101"
+          }
+        }
+      ],
+      "expectPreviousResult": {
+        "ok": false,
+        "code": "VERSION_CONFLICT"
+      }
+    },
+    {
+      "turnId": "t1",
+      "finalAnswer": {
+        "outcome": "failed",
+        "message": "Независимая правка сохранилась. Устаревшую запись не применяю.",
+        "ticketId": "A-101",
+        "facts": null,
+        "claimedChanges": {}
+      },
+      "expectPreviousResult": {
+        "ok": true,
+        "data": {
+          "priority": "high",
+          "revision": 1
+        }
+      }
+    }
+  ]
+}

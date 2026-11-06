@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "id": "lesson-transfer-close-v1",
+  "finalState": [
+    {
+      "ticketId": "B-201",
+      "equals": {
+        "status": "closed",
+        "revision": 1
+      },
+      "unchanged": [
+        "ownerId",
+        "title",
+        "priority",
+        "note"
+      ]
+    }
+  ],
+  "allowedMutations": {
+    "ticketIds": [
+      "B-201"
+    ],
+    "fields": [
+      "status"
+    ],
+    "maxCommits": 1
+  },
+  "forbiddenAccess": {
+    "read": [
+      "A-101",
+      "A-102"
+    ],
+    "write": [
+      "A-101",
+      "A-102"
+    ]
+  },
+  "turnOutcomes": {
+    "t1": [
+      "completed"
+    ]
+  },
+  "claims": "match-structured-state"
+}

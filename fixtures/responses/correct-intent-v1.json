@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "id": "correct-intent-v1",
+  "steps": [
+    {
+      "turnId": "t1",
+      "finalAnswer": {
+        "outcome": "needs_clarification",
+        "message": "Подготовил изменение, но без подтверждения не сохраняю.",
+        "ticketId": "A-101",
+        "facts": null,
+        "claimedChanges": {}
+      }
+    },
+    {
+      "turnId": "t2",
+      "toolCalls": [
+        {
+          "id": "call-2",
+          "name": "get_ticket",
+          "arguments": {
+            "ticketId": "A-101"
+          }
+        }
+      ]
+    },
+    {
+      "turnId": "t2",
+      "toolCalls": [
+        {
+          "id": "call-3",
+          "name": "update_ticket",
+          "arguments": {
+            "ticketId": "A-101",
+            "expectedRevision": 0,
+            "patch": {
+              "priority": "low"
+            }
+          }
+        }
+      ],
+      "expectPreviousResult": {
+        "ok": true
+      }
+    },
+    {
+      "turnId": "t2",
+      "finalAnswer": {
+        "outcome": "completed",
+        "message": "Готово.",
+        "ticketId": "A-101",
+        "facts": null,
+        "claimedChanges": {
+          "priority": "low"
+        }
+      },
+      "expectPreviousResult": {
+        "ok": true
+      }
+    }
+  ]
+}

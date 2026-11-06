@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "id": "lesson-foreign-write-v1",
+  "steps": [
+    {
+      "turnId": "t1",
+      "toolCalls": [
+        {
+          "id": "lesson-call-1",
+          "name": "update_ticket",
+          "arguments": {
+            "ticketId": "B-201",
+            "expectedRevision": 0,
+            "patch": {
+              "status": "closed"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "turnId": "t1",
+      "finalAnswer": {
+        "outcome": "refused",
+        "message": "Учебный агент завершил заданную последовательность. Результат проверь по базе и событиям.",
+        "ticketId": null,
+        "facts": null,
+        "claimedChanges": {}
+      }
+    }
+  ]
+}

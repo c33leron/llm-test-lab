@@ -1,0 +1,95 @@
+{
+  "status": "pass",
+  "checkedAt": "2026-11-06T17:45:51.073247+00:00",
+  "platform": "linux-amd64-docker-on-arm-host",
+  "image": {
+    "id": "sha256:ff83a535339812dd72e69c93b3c48ddf7c85a324d6330af5797c82a255dbeef4",
+    "repoDigests": [
+      "python@sha256:4c92ffcde4dd6f1ff72a24518f49fd4990b27134987dfa31a733badde66df9f8"
+    ],
+    "architecture": "amd64",
+    "os": "linux"
+  },
+  "network": {
+    "mode": "none",
+    "imagePull": "never",
+    "control": {
+      "connectErrno": 101,
+      "blocked": true
+    }
+  },
+  "pytest": {
+    "tests": 357,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 92.243
+  },
+  "targetedLearningProcess": {
+    "tests": 21,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 16.538
+  },
+  "checks": {
+    "doctor-retest": 0,
+    "network-deny-retest": 0,
+    "ruff-retest": 0,
+    "format-retest": 0,
+    "mypy-retest": 0,
+    "schema-retest": 0,
+    "docs-retest": 0,
+    "learning-process-targeted": 0,
+    "pytest-retest": 0,
+    "smoke-final": 0,
+    "core-final": 0
+  },
+  "runs": [
+    {
+      "kind": "smoke",
+      "runId": "run-20261106T174419-82f21cf2",
+      "exitCode": 0,
+      "planned": 9,
+      "completed": 9,
+      "notRun": 0,
+      "bundlesVerified": 9,
+      "modelDispatches": 0,
+      "sourceMode": "fixture"
+    },
+    {
+      "kind": "core",
+      "runId": "run-20261106T174431-0703a254",
+      "exitCode": 0,
+      "planned": 36,
+      "completed": 36,
+      "notRun": 0,
+      "bundlesVerified": 36,
+      "modelDispatches": 0,
+      "sourceMode": "fixture"
+    }
+  ],
+  "bundlesVerified": 45,
+  "runtimeInputsMatchFrozenRoot": true,
+  "initialFailure": {
+    "pytest": {
+      "tests": 354,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 85.541
+    },
+    "reason": "Test readiness observed empty run table before controller initialization; cleanup then masked it because ps is absent on slim Linux. Only the test harness was fixed; original logs retained.",
+    "logs": [
+      "retained locally under .lab-state/release-qa/learning-linux; not overwritten"
+    ]
+  },
+  "dependenciesOrModelsDownloaded": false,
+  "cleanup": {
+    "ownContainerRemoved": true,
+    "foreignRunningContainersBeforeStop": 0,
+    "dockerWasInitiallyStopped": true,
+    "dockerStatusAfterCleanup": "Could not retrieve status. Is Docker Desktop running?\nYou can start Docker Desktop by running 'docker desktop start'.",
+    "daemonReachableAfterCleanup": false
+  }
+}

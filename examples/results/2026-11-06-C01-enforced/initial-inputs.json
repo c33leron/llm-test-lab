@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "files": {
+    "case.json": "3d86df402c3e1bce7958212d31dd312308e9657de769ce0eea249d7dd225d9e0",
+    "expectation.json": "8c6b13c38f2085c54d04e7c312439d649b9f290f4d1c150119b8587505dcdf51",
+    "fixture.json": "addf7972fe7afb2ee9745300a62b27bc7af0a7d41fcdce049cba04b241d15a84",
+    "state-before.json": "52279752742f51be15f9aceb1481a933d46945ab2eccd8f3b57e1fdb2e6c7446",
+    "cell.json": "79e7a3fc71360940c0a06224f84b554c288b8ea1b3b42bd89a2aac6ab0bc57b7"
+  }
+}

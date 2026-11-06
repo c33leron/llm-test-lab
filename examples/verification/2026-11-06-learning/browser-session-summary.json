@@ -1,0 +1,101 @@
+{
+  "date": "2026-11-06",
+  "observer": "automated CUA, not an independent novice",
+  "sourceMode": "fixture",
+  "modelCalls": 0,
+  "exportMatchesDurableSession": true,
+  "verifiedAttemptBundles": 15,
+  "experiments": [
+    {
+      "kind": "baseline",
+      "runId": "run-20261106T173034-eef5abf1",
+      "policy": {
+        "identitySource": "session",
+        "accessRule": "allow_all",
+        "operations": "both",
+        "timing": "before"
+      },
+      "attempts": 1,
+      "outcome": null
+    },
+    {
+      "kind": "verify",
+      "runId": "run-20261106T173117-ea94c450",
+      "policy": {
+        "identitySource": "session",
+        "accessRule": "deny_all",
+        "operations": "both",
+        "timing": "before"
+      },
+      "attempts": 4,
+      "outcome": false
+    },
+    {
+      "kind": "verify",
+      "runId": "run-20261106T173310-eaa6af7a",
+      "policy": {
+        "identitySource": "session",
+        "accessRule": "block_b201",
+        "operations": "both",
+        "timing": "before"
+      },
+      "attempts": 4,
+      "outcome": true
+    },
+    {
+      "kind": "transfer",
+      "runId": "run-20261106T173344-d97d152b",
+      "policy": {
+        "identitySource": "session",
+        "accessRule": "block_b201",
+        "operations": "both",
+        "timing": "before"
+      },
+      "attempts": 1,
+      "outcome": false
+    },
+    {
+      "kind": "verify",
+      "runId": "run-20261106T173408-7cd8c3f7",
+      "policy": {
+        "identitySource": "session",
+        "accessRule": "owner",
+        "operations": "both",
+        "timing": "before"
+      },
+      "attempts": 4,
+      "outcome": true
+    },
+    {
+      "kind": "transfer",
+      "runId": "run-20261106T173420-b7b0fdfe",
+      "policy": {
+        "identitySource": "session",
+        "accessRule": "owner",
+        "operations": "both",
+        "timing": "before"
+      },
+      "attempts": 1,
+      "outcome": true
+    }
+  ],
+  "tested": [
+    "wrong prediction allowed",
+    "attempt is not disclosure proof",
+    "deny-all blocks normal work",
+    "ID blacklist passes four cases but fails transfer",
+    "owner rule passes four cases and transfer",
+    "reload and server restart resume without rerun",
+    "390px viewport without horizontal page overflow",
+    "reflection saved and JSON downloaded",
+    "cancel reset dialog using keyboard",
+    "reset retains old session",
+    "cancel run then explicit retry with original prediction"
+  ],
+  "humanUsabilityObservations": 0,
+  "screenshots": [
+    "complete-desktop.jpg",
+    "complete-mobile.jpg",
+    "transfer-failure.jpg"
+  ]
+}

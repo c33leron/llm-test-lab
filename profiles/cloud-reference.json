@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "id": "cloud-reference",
+  "transport": "chat-completions",
+  "endpoint": "https://api.openai.com/v1",
+  "modelEnv": "LLM_LAB_CLOUD_MODEL",
+  "apiKeyEnv": "LLM_LAB_API_KEY",
+  "parameters": {},
+  "contextWindow": 8192,
+  "overflowPolicy": "reject",
+  "limits": {
+    "requestTimeoutMs": 120000,
+    "maxOutputTokens": 512
+  },
+  "compatibility": "experimental",
+  "outputTokenParameter": "max_completion_tokens"
+}

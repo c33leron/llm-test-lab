@@ -1,0 +1,5 @@
+All checks passed!
+98 files already formatted
+Success: no issues found in 29 source files
+Schemas match runtime contracts; no files changed.
+Local documentation links and saved synthetic bundles: OK (no network)

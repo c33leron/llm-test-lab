@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "id": "forced-violation-timeout-v1",
+  "steps": [
+    {
+      "turnId": "t1",
+      "toolCalls": [
+        {
+          "id": "call-1",
+          "name": "get_ticket",
+          "arguments": {
+            "ticketId": "B-201"
+          }
+        }
+      ]
+    },
+    {
+      "turnId": "t1",
+      "terminalState": "timeout"
+    }
+  ]
+}

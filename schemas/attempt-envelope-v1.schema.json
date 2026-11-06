@@ -1,0 +1,375 @@
+{
+  "$defs": {
+    "ChecksSummary": {
+      "additionalProperties": false,
+      "properties": {
+        "task": {
+          "enum": [
+            "pass",
+            "fail",
+            "inconclusive",
+            "oracle_error"
+          ],
+          "title": "Task",
+          "type": "string"
+        },
+        "security": {
+          "enum": [
+            "violation",
+            "no_observed_violation",
+            "inconclusive",
+            "oracle_error"
+          ],
+          "title": "Security",
+          "type": "string"
+        },
+        "attemptedForbiddenAction": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "const": "unknown",
+              "type": "string"
+            }
+          ],
+          "title": "Attemptedforbiddenaction"
+        },
+        "applicationBlockedAction": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "const": "unknown",
+              "type": "string"
+            }
+          ],
+          "title": "Applicationblockedaction"
+        },
+        "claimConsistency": {
+          "enum": [
+            "pass",
+            "fail",
+            "not_assessed",
+            "oracle_error"
+          ],
+          "title": "Claimconsistency",
+          "type": "string"
+        },
+        "modelProtocol": {
+          "enum": [
+            "pass",
+            "fail",
+            "not_assessed"
+          ],
+          "title": "Modelprotocol",
+          "type": "string"
+        },
+        "taskRecovery": {
+          "default": "not_exercised",
+          "enum": [
+            "pass",
+            "fail",
+            "not_exercised",
+            "inconclusive"
+          ],
+          "title": "Taskrecovery",
+          "type": "string"
+        },
+        "duplicateCommandSuppressed": {
+          "default": "not_exercised",
+          "enum": [
+            "pass",
+            "fail",
+            "not_exercised"
+          ],
+          "title": "Duplicatecommandsuppressed",
+          "type": "string"
+        },
+        "details": {
+          "items": {
+            "additionalProperties": {
+              "$ref": "#/$defs/JsonValue"
+            },
+            "type": "object"
+          },
+          "title": "Details",
+          "type": "array"
+        }
+      },
+      "required": [
+        "task",
+        "security",
+        "attemptedForbiddenAction",
+        "applicationBlockedAction",
+        "claimConsistency",
+        "modelProtocol"
+      ],
+      "title": "ChecksSummary",
+      "type": "object"
+    },
+    "FinalAnswer": {
+      "additionalProperties": false,
+      "properties": {
+        "outcome": {
+          "$ref": "#/$defs/Outcome"
+        },
+        "message": {
+          "maxLength": 16000,
+          "title": "Message",
+          "type": "string"
+        },
+        "ticketId": {
+          "anyOf": [
+            {
+              "maxLength": 120,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Ticketid"
+        },
+        "facts": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "$ref": "#/$defs/JsonValue"
+              },
+              "propertyNames": {
+                "$ref": "#/$defs/TicketField"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Facts"
+        },
+        "claimedChanges": {
+          "additionalProperties": {
+            "$ref": "#/$defs/JsonValue"
+          },
+          "propertyNames": {
+            "$ref": "#/$defs/MutableField"
+          },
+          "title": "Claimedchanges",
+          "type": "object"
+        }
+      },
+      "required": [
+        "outcome",
+        "message",
+        "ticketId",
+        "facts",
+        "claimedChanges"
+      ],
+      "title": "FinalAnswer",
+      "type": "object"
+    },
+    "JsonValue": {},
+    "MutableField": {
+      "enum": [
+        "title",
+        "status",
+        "priority"
+      ],
+      "type": "string"
+    },
+    "Outcome": {
+      "enum": [
+        "completed",
+        "needs_clarification",
+        "refused",
+        "failed"
+      ],
+      "type": "string"
+    },
+    "SourceMode": {
+      "enum": [
+        "recorded",
+        "fixture",
+        "live-local",
+        "live-cloud"
+      ],
+      "type": "string"
+    },
+    "TerminalState": {
+      "enum": [
+        "created",
+        "running",
+        "completed",
+        "model_error",
+        "provider_error",
+        "executor_error",
+        "timeout",
+        "cancelled",
+        "limit_reached",
+        "interrupted"
+      ],
+      "type": "string"
+    },
+    "TicketField": {
+      "enum": [
+        "id",
+        "ownerId",
+        "title",
+        "status",
+        "priority",
+        "revision",
+        "note"
+      ],
+      "type": "string"
+    },
+    "TurnResult": {
+      "additionalProperties": false,
+      "properties": {
+        "turnId": {
+          "title": "Turnid",
+          "type": "string"
+        },
+        "outcome": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Outcome"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "modelProtocol": {
+          "enum": [
+            "pass",
+            "fail",
+            "not_assessed"
+          ],
+          "title": "Modelprotocol",
+          "type": "string"
+        },
+        "finalAnswer": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FinalAnswer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "turnId",
+        "outcome",
+        "modelProtocol"
+      ],
+      "title": "TurnResult",
+      "type": "object"
+    },
+    "Variant": {
+      "enum": [
+        "vulnerable",
+        "prompt_only",
+        "enforced",
+        "learning"
+      ],
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": 1,
+      "default": 1,
+      "title": "Schemaversion",
+      "type": "integer"
+    },
+    "attemptId": {
+      "title": "Attemptid",
+      "type": "string"
+    },
+    "caseId": {
+      "title": "Caseid",
+      "type": "string"
+    },
+    "caseVersion": {
+      "title": "Caseversion",
+      "type": "string"
+    },
+    "variant": {
+      "$ref": "#/$defs/Variant"
+    },
+    "sourceMode": {
+      "$ref": "#/$defs/SourceMode"
+    },
+    "profileId": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Profileid"
+    },
+    "terminalState": {
+      "$ref": "#/$defs/TerminalState"
+    },
+    "turnResults": {
+      "items": {
+        "$ref": "#/$defs/TurnResult"
+      },
+      "title": "Turnresults",
+      "type": "array"
+    },
+    "finalAnswer": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/FinalAnswer"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "checksSummary": {
+      "$ref": "#/$defs/ChecksSummary"
+    },
+    "evidenceIntegrity": {
+      "enum": [
+        "complete",
+        "partial",
+        "invalid"
+      ],
+      "title": "Evidenceintegrity",
+      "type": "string"
+    },
+    "evidenceRef": {
+      "title": "Evidenceref",
+      "type": "string"
+    }
+  },
+  "required": [
+    "attemptId",
+    "caseId",
+    "caseVersion",
+    "variant",
+    "sourceMode",
+    "profileId",
+    "terminalState",
+    "turnResults",
+    "finalAnswer",
+    "checksSummary",
+    "evidenceIntegrity",
+    "evidenceRef"
+  ],
+  "title": "LabAttemptEnvelope",
+  "type": "object"
+}

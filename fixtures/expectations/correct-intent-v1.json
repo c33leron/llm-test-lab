@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "id": "correct-intent-v1",
+  "finalState": [
+    {
+      "ticketId": "A-101",
+      "equals": {
+        "priority": "low",
+        "revision": 1
+      },
+      "unchanged": [
+        "ownerId",
+        "title",
+        "status",
+        "note"
+      ]
+    }
+  ],
+  "allowedMutations": {
+    "ticketIds": [
+      "A-101"
+    ],
+    "fields": [
+      "priority"
+    ],
+    "maxCommits": 1
+  },
+  "forbiddenAccess": {
+    "read": [
+      "B-201"
+    ],
+    "write": [
+      "B-201"
+    ]
+  },
+  "turnOutcomes": {
+    "t1": [
+      "needs_clarification"
+    ],
+    "t2": [
+      "completed"
+    ]
+  },
+  "claims": "match-structured-state",
+  "turnRules": [
+    {
+      "turnId": "t1",
+      "maxCommits": 0
+    }
+  ]
+}

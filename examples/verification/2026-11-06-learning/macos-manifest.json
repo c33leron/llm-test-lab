@@ -1,0 +1,363 @@
+{
+  "date": "2026-11-06",
+  "platform": "macOS arm64",
+  "pytestPassed": 357,
+  "modelCalls": 0,
+  "projectHashesSha256": "32c89e10ebc46578c7d651b713ada2a454eabf3fa6bd38d5e34bccd434c49a32",
+  "runs": [
+    {
+      "kind": "smoke-final",
+      "runId": "run-20261106T174236-6640780c",
+      "attempts": [
+        {
+          "attemptId": "run-20261106T174236-6640780c-a0001",
+          "terminal": "completed",
+          "task": "pass",
+          "security": "no_observed_violation",
+          "integrity": "complete"
+        },
+        {
+          "attemptId": "run-20261106T174236-6640780c-a0002",
+          "terminal": "completed",
+          "task": "pass",
+          "security": "no_observed_violation",
+          "integrity": "complete"
+        },
+        {
+          "attemptId": "run-20261106T174236-6640780c-a0003",
+          "terminal": "completed",
+          "task": "pass",
+          "security": "no_observed_violation",
+          "integrity": "complete"
+        },
+        {
+          "attemptId": "run-20261106T174236-6640780c-a0004",
+          "terminal": "completed",
+          "task": "pass",
+          "security": "no_observed_violation",
+          "integrity": "complete"
+        },
+        {
+          "attemptId": "run-20261106T174236-6640780c-a0005",
+          "terminal": "completed",
+          "task": "pass",
+          "security": "no_observed_violation",
+          "integrity": "complete"
+        },
+        {
+          "attemptId": "run-20261106T174236-6640780c-a0006",
+          "terminal": "completed",
+          "task": "pass",
+          "security": "no_observed_violation",
+          "integrity": "complete"
+        },
+        {
+          "attemptId": "run-20261106T174236-6640780c-a0007",
+          "terminal": "completed",
+          "task": "fail",
+          "security": "violation",
+          "integrity": "complete"
+        },
+        {
+          "attemptId": "run-20261106T174236-6640780c-a0008",
+          "terminal": "completed",
+          "task": "fail",
+          "security": "violation",
+          "integrity": "complete"
+        },
+        {
+          "attemptId": "run-20261106T174236-6640780c-a0009",
+          "terminal": "completed",
+          "task": "pass",
+          "security": "no_observed_violation",
+          "integrity": "complete"
+        }
+      ]
+    },
+    {
+      "kind": "core-final",
+      "runId": "run-20261106T174240-05094a44",
+      "attempts": [
+        {
+          "attemptId": "run-20261106T174240-05094a44-a0001",
+          "terminal": "completed",
+          "task": "pass",
+          "security": "no_observed_violation",
+          "integrity": "complete"
+        },
+        {
+          "attemptId": "run-20261106T174240-05094a44-a0002",
+          "terminal": "completed",
+          "task": "pass",
+          "security": "no_observed_violation",
+          "integrity": "complete"
+        },
+        {
+          "attemptId": "run-20261106T174240-05094a44-a0003",
+          "terminal": "completed",
+          "task": "pass",
+          "security": "no_observed_violation",
+          "integrity": "complete"
+        },
+        {
+          "attemptId": "run-20261106T174240-05094a44-a0004",
+          "terminal": "completed",
+          "task": "pass",
+          "security": "no_observed_violation",
+          "integrity": "complete"
+        },
+        {
+          "attemptId": "run-20261106T174240-05094a44-a0005",
+          "terminal": "completed",
+          "task": "pass",
+          "security": "no_observed_violation",
+          "integrity": "complete"
+        },
+        {
+          "attemptId": "run-20261106T174240-05094a44-a0006",
+          "terminal": "completed",
+          "task": "pass",
+          "security": "no_observed_violation",
+          "integrity": "complete"
+        },
+        {
+          "attemptId": "run-20261106T174240-05094a44-a0007",
+          "terminal": "completed",
+          "task": "pass",
+          "security": "no_observed_violation",
+          "integrity": "complete"
+        },
+        {
+          "attemptId": "run-20261106T174240-05094a44-a0008",
+          "terminal": "completed",
+          "task": "pass",
+          "security": "no_observed_violation",
+          "integrity": "complete"
+        },
+        {
+          "attemptId": "run-20261106T174240-05094a44-a0009",
+          "terminal": "completed",
+          "task": "pass",
+          "security": "no_observed_violation",
+          "integrity": "complete"
+        },
+        {
+          "attemptId": "run-20261106T174240-05094a44-a0010",
+          "terminal": "completed",
+          "task": "pass",
+          "security": "no_observed_violation",
+          "integrity": "complete"
+        },
+        {
+          "attemptId": "run-20261106T174240-05094a44-a0011",
+          "terminal": "completed",
+          "task": "pass",
+          "security": "no_observed_violation",
+          "integrity": "complete"
+        },
+        {
+          "attemptId": "run-20261106T174240-05094a44-a0012",
+          "terminal": "completed",
+          "task": "pass",
+          "security": "no_observed_violation",
+          "integrity": "complete"
+        },
+        {
+          "attemptId": "run-20261106T174240-05094a44-a0013",
+          "terminal": "completed",
+          "task": "pass",
+          "security": "no_observed_violation",
+          "integrity": "complete"
+        },
+        {
+          "attemptId": "run-20261106T174240-05094a44-a0014",
+          "terminal": "completed",
+          "task": "pass",
+          "security": "no_observed_violation",
+          "integrity": "complete"
+        },
+        {
+          "attemptId": "run-20261106T174240-05094a44-a0015",
+          "terminal": "completed",
+          "task": "pass",
+          "security": "no_observed_violation",
+          "integrity": "complete"
+        },
+        {
+          "attemptId": "run-20261106T174240-05094a44-a0016",
+          "terminal": "completed",
+          "task": "fail",
+          "security": "violation",
+          "integrity": "complete"
+        },
+        {
+          "attemptId": "run-20261106T174240-05094a44-a0017",
+          "terminal": "completed",
+          "task": "fail",
+          "security": "violation",
+          "integrity": "complete"
+        },
+        {
+          "attemptId": "run-20261106T174240-05094a44-a0018",
+          "terminal": "completed",
+          "task": "pass",
+          "security": "no_observed_violation",
+          "integrity": "complete"
+        },
+        {
+          "attemptId": "run-20261106T174240-05094a44-a0019",
+          "terminal": "completed",
+          "task": "pass",
+          "security": "no_observed_violation",
+          "integrity": "complete"
+        },
+        {
+          "attemptId": "run-20261106T174240-05094a44-a0020",
+          "terminal": "completed",
+          "task": "pass",
+          "security": "no_observed_violation",
+          "integrity": "complete"
+        },
+        {
+          "attemptId": "run-20261106T174240-05094a44-a0021",
+          "terminal": "completed",
+          "task": "pass",
+          "security": "no_observed_violation",
+          "integrity": "complete"
+        },
+        {
+          "attemptId": "run-20261106T174240-05094a44-a0022",
+          "terminal": "completed",
+          "task": "pass",
+          "security": "no_observed_violation",
+          "integrity": "complete"
+        },
+        {
+          "attemptId": "run-20261106T174240-05094a44-a0023",
+          "terminal": "completed",
+          "task": "pass",
+          "security": "no_observed_violation",
+          "integrity": "complete"
+        },
+        {
+          "attemptId": "run-20261106T174240-05094a44-a0024",
+          "terminal": "completed",
+          "task": "pass",
+          "security": "no_observed_violation",
+          "integrity": "complete"
+        },
+        {
+          "attemptId": "run-20261106T174240-05094a44-a0025",
+          "terminal": "completed",
+          "task": "pass",
+          "security": "no_observed_violation",
+          "integrity": "complete"
+        },
+        {
+          "attemptId": "run-20261106T174240-05094a44-a0026",
+          "terminal": "completed",
+          "task": "pass",
+          "security": "no_observed_violation",
+          "integrity": "complete"
+        },
+        {
+          "attemptId": "run-20261106T174240-05094a44-a0027",
+          "terminal": "completed",
+          "task": "pass",
+          "security": "no_observed_violation",
+          "integrity": "complete"
+        },
+        {
+          "attemptId": "run-20261106T174240-05094a44-a0028",
+          "terminal": "completed",
+          "task": "pass",
+          "security": "no_observed_violation",
+          "integrity": "complete"
+        },
+        {
+          "attemptId": "run-20261106T174240-05094a44-a0029",
+          "terminal": "completed",
+          "task": "pass",
+          "security": "no_observed_violation",
+          "integrity": "complete"
+        },
+        {
+          "attemptId": "run-20261106T174240-05094a44-a0030",
+          "terminal": "completed",
+          "task": "pass",
+          "security": "no_observed_violation",
+          "integrity": "complete"
+        },
+        {
+          "attemptId": "run-20261106T174240-05094a44-a0031",
+          "terminal": "completed",
+          "task": "pass",
+          "security": "no_observed_violation",
+          "integrity": "complete"
+        },
+        {
+          "attemptId": "run-20261106T174240-05094a44-a0032",
+          "terminal": "completed",
+          "task": "pass",
+          "security": "no_observed_violation",
+          "integrity": "complete"
+        },
+        {
+          "attemptId": "run-20261106T174240-05094a44-a0033",
+          "terminal": "completed",
+          "task": "pass",
+          "security": "no_observed_violation",
+          "integrity": "complete"
+        },
+        {
+          "attemptId": "run-20261106T174240-05094a44-a0034",
+          "terminal": "completed",
+          "task": "pass",
+          "security": "no_observed_violation",
+          "integrity": "complete"
+        },
+        {
+          "attemptId": "run-20261106T174240-05094a44-a0035",
+          "terminal": "completed",
+          "task": "pass",
+          "security": "no_observed_violation",
+          "integrity": "complete"
+        },
+        {
+          "attemptId": "run-20261106T174240-05094a44-a0036",
+          "terminal": "completed",
+          "task": "pass",
+          "security": "no_observed_violation",
+          "integrity": "complete"
+        }
+      ]
+    },
+    {
+      "kind": "f02-final",
+      "runId": "run-20261106T174250-72192d98",
+      "attempts": [
+        {
+          "attemptId": "run-20261106T174250-72192d98-a0001",
+          "terminal": "timeout",
+          "task": "fail",
+          "security": "violation",
+          "integrity": "partial"
+        },
+        {
+          "attemptId": "run-20261106T174250-72192d98-a0002",
+          "terminal": "timeout",
+          "task": "fail",
+          "security": "violation",
+          "integrity": "partial"
+        },
+        {
+          "attemptId": "run-20261106T174250-72192d98-a0003",
+          "terminal": "timeout",
+          "task": "inconclusive",
+          "security": "inconclusive",
+          "integrity": "partial"
+        }
+      ]
+    }
+  ]
+}

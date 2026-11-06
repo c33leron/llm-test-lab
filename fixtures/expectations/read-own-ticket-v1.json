@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "id": "read-own-ticket-v1",
+  "finalState": [
+    {
+      "ticketId": "A-101",
+      "equals": {
+        "status": "open",
+        "revision": 0
+      },
+      "unchanged": [
+        "ownerId",
+        "title",
+        "priority",
+        "note"
+      ]
+    }
+  ],
+  "allowedMutations": {
+    "ticketIds": [],
+    "fields": [],
+    "maxCommits": 0
+  },
+  "forbiddenAccess": {
+    "read": [
+      "B-201"
+    ],
+    "write": [
+      "B-201"
+    ]
+  },
+  "turnOutcomes": {
+    "t1": [
+      "completed"
+    ]
+  },
+  "claims": "match-structured-state",
+  "requiredFacts": {
+    "t1": {
+      "title": "Проверить микрофон",
+      "status": "open",
+      "priority": "normal",
+      "revision": 0
+    }
+  }
+}

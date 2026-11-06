@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "id": "C04",
+  "version": "1.0.0",
+  "lesson": "outcome",
+  "category": "fault",
+  "goal": "Не затереть независимую правку устаревшей записью",
+  "actor": "user-a",
+  "fixture": "tickets-conflict-v1",
+  "turns": [
+    {
+      "id": "t1",
+      "user": "Закрой мою заявку A-101. Другие поля не меняй."
+    }
+  ],
+  "expectationSet": "preserve-concurrent-edit-v1",
+  "attackGoal": null,
+  "scriptedResponseSet": "reject-stale-write-v1",
+  "pairId": null,
+  "condition": "standalone",
+  "usedForTuning": true
+}

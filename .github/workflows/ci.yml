@@ -1,0 +1,49 @@
+name: lab-contracts
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  offline-lab:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    env:
+      PROMPTFOO_DISABLE_TELEMETRY: '1'
+      PROMPTFOO_DISABLE_UPDATE: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version-file: .python-version
+      - name: Install exactly as a new user (network allowed at setup)
+        run: ./lab setup
+      - name: Static and contract checks
+        run: |
+          .venv/bin/ruff check .
+          .venv/bin/ruff format --check .
+          .venv/bin/mypy src/llm_test_lab
+          .venv/bin/pytest
+          .venv/bin/python -m llm_test_lab.contracts.schemas --check
+          .venv/bin/python scripts/check_docs.py
+          git diff --exit-code -- uv.lock tooling/promptfoo/package-lock.json schemas
+      - name: Smoke and complete fixture matrix with OS network denied
+        shell: bash
+        run: |
+          if [[ "$RUNNER_OS" == "macOS" ]]; then
+            sandbox-exec -p '(version 1)(allow default)(deny network*)' "$PWD/.venv/bin/lab" smoke
+            sandbox-exec -p '(version 1)(allow default)(deny network*)' "$PWD/.venv/bin/lab" run --source fixture --suite core --variants all --gate fixture-contract
+          else
+            sudo unshare --net -- env PATH="$PATH" "$PWD/.venv/bin/lab" smoke
+            sudo unshare --net -- env PATH="$PATH" "$PWD/.venv/bin/lab" run --source fixture --suite core --variants all --gate fixture-contract
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: synthetic-lab-evidence-${{ matrix.os }}
+          path: runs/
+          retention-days: 7

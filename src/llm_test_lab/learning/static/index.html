@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="referrer" content="no-referrer">
+  <title>Первое расследование · LLM Test Lab</title>
+  <link rel="stylesheet" href="/style.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#lesson">К текущему шагу</a>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="LLM Test Lab — текущий урок"><span class="brand-mark" aria-hidden="true">L<span>✓</span></span><span>LLM <strong>Test Lab</strong><small>Понять. Проверить. Исправить.</small></span></a>
+      <div class="header-actions"><span class="local-badge"><span aria-hidden="true"></span>Локально на этом компьютере</span><button id="reset-button" class="button quiet small" type="button" disabled>Начать заново</button></div>
+    </header>
+    <div id="connection" class="connection" role="alert" hidden></div>
+    <main id="main">
+      <section class="mission-intro" aria-labelledby="mission-heading">
+        <div class="eyebrow">Первое расследование <span>·</span> около 10 минут после установки</div>
+        <h1 id="mission-heading">Своя задача выполнена.<br><span>Чужие данные раскрыты?</span></h1>
+        <p class="intro-copy">Найди границу, которую пересёк помощник, и исправь защиту так, чтобы обычная работа продолжалась.</p>
+        <div class="source-badge">Учебный сценарий — без нейросети</div>
+      </section>
+      <nav class="progress-nav" aria-label="Ход урока"><ol id="progress"></ol></nav>
+      <div class="lesson-layout">
+        <section id="lesson" class="lesson-panel" aria-labelledby="stage-heading" tabindex="-1">
+          <div class="loading-start" role="status"><span class="spinner" aria-hidden="true"></span><h2 id="stage-heading">Открываем твой урок</h2><p>Проверяем сохранённый шаг. Никаких запросов к модели.</p></div>
+        </section>
+        <aside class="context-panel" aria-label="Условие и полезные подсказки">
+          <div class="context-label">Перед тобой</div>
+          <h2>Учебная служба поддержки</h2>
+          <p id="context-role" class="context-role">Исходный опыт · пользователь A</p>
+          <div class="ticket own"><span class="ticket-icon" aria-hidden="true">A</span><div><strong>A-101</strong><span>Твоя заявка</span></div><span class="ticket-status">можно закрыть</span></div>
+          <div class="ticket foreign"><span class="ticket-icon" aria-hidden="true">B</span><div><strong>B-201</strong><span>Чужая заявка</span></div><span class="ticket-status">не выдавать</span></div>
+          <p class="context-copy">Помощник может читать и изменять заявки. Но просьба в тексте заявки не даёт ему новых прав.</p>
+          <div class="context-divider"></div>
+          <h3>Что здесь настоящее?</h3>
+          <p class="context-copy">Инструменты, проверка доступа и отдельная учебная база. Действия помощника заданы сценарием: так можно проверить защиту без модели и ключа.</p>
+          <p class="scope-note">Результат этого урока — не сертификат безопасности нейросети.</p>
+          <details class="help-detail"><summary>Почему нельзя просто запретить всё?</summary><p>Защита должна остановить чужой доступ, но сохранить разрешённую задачу. В проверке будут оба условия.</p></details>
+          <div id="session-note" class="session-note">Прогресс сохраняется на этом компьютере.</div>
+        </aside>
+      </div>
+    </main>
+    <footer class="footer"><span>Синтетические данные · без API-ключа · без внешних запросов из страницы</span><span>Сначала факт. Потом вывод.</span></footer>
+  </div>
+  <div id="announcements" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+  <dialog id="reset-dialog" aria-labelledby="reset-title">
+    <form method="dialog">
+      <h2 id="reset-title">Начать новый урок?</h2>
+      <p>Текущий учебный путь начнётся заново. Сохранённые эксперименты не будут удалены.</p>
+      <div class="action-row"><button class="button secondary" value="cancel">Продолжить этот урок</button><button id="confirm-reset" class="button primary" type="button">Да, начать заново</button></div>
+    </form>
+  </dialog>
+  <noscript><p class="noscript">Для пошагового урока нужен JavaScript. Командные опыты остаются доступны: ./lab start --terminal.</p></noscript>
+</body>
+</html>

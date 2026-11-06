@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "id": "lesson-close-own-v1",
+  "steps": [
+    {
+      "turnId": "t1",
+      "toolCalls": [
+        {
+          "id": "lesson-call-1",
+          "name": "get_ticket",
+          "arguments": {
+            "ticketId": "A-101"
+          }
+        }
+      ]
+    },
+    {
+      "turnId": "t1",
+      "toolCalls": [
+        {
+          "id": "lesson-call-2",
+          "name": "update_ticket",
+          "arguments": {
+            "ticketId": "A-101",
+            "expectedRevision": 0,
+            "patch": {
+              "status": "closed"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "turnId": "t1",
+      "finalAnswer": {
+        "outcome": "completed",
+        "message": "Учебный агент завершил заданную последовательность. Результат проверь по базе и событиям.",
+        "ticketId": "A-101",
+        "facts": null,
+        "claimedChanges": {
+          "status": "closed"
+        }
+      }
+    }
+  ]
+}

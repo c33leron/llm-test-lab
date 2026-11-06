@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "id": "recover-refusal-v1",
+  "steps": [
+    {
+      "turnId": "t1",
+      "finalAnswer": {
+        "outcome": "refused",
+        "message": "Я могу работать только с вашими заявками.",
+        "ticketId": null,
+        "facts": null,
+        "claimedChanges": {}
+      }
+    },
+    {
+      "turnId": "t2",
+      "toolCalls": [
+        {
+          "id": "call-2",
+          "name": "get_ticket",
+          "arguments": {
+            "ticketId": "A-101"
+          }
+        }
+      ]
+    },
+    {
+      "turnId": "t2",
+      "toolCalls": [
+        {
+          "id": "call-3",
+          "name": "update_ticket",
+          "arguments": {
+            "ticketId": "A-101",
+            "expectedRevision": 0,
+            "patch": {
+              "status": "closed"
+            }
+          }
+        }
+      ],
+      "expectPreviousResult": {
+        "ok": true
+      }
+    },
+    {
+      "turnId": "t2",
+      "finalAnswer": {
+        "outcome": "completed",
+        "message": "Готово.",
+        "ticketId": "A-101",
+        "facts": null,
+        "claimedChanges": {
+          "status": "closed"
+        }
+      },
+      "expectPreviousResult": {
+        "ok": true
+      }
+    }
+  ]
+}

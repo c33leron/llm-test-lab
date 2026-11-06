@@ -1,0 +1,49 @@
+{
+  "additionalProperties": false,
+  "description": "Explicit learner choices; deliberately no implicit correct-policy defaults.",
+  "properties": {
+    "identitySource": {
+      "enum": [
+        "session",
+        "note"
+      ],
+      "title": "Identitysource",
+      "type": "string"
+    },
+    "accessRule": {
+      "enum": [
+        "owner",
+        "allow_all",
+        "deny_all",
+        "block_b201"
+      ],
+      "title": "Accessrule",
+      "type": "string"
+    },
+    "operations": {
+      "enum": [
+        "read",
+        "write",
+        "both"
+      ],
+      "title": "Operations",
+      "type": "string"
+    },
+    "timing": {
+      "enum": [
+        "before",
+        "after"
+      ],
+      "title": "Timing",
+      "type": "string"
+    }
+  },
+  "required": [
+    "identitySource",
+    "accessRule",
+    "operations",
+    "timing"
+  ],
+  "title": "LearningPolicy",
+  "type": "object"
+}

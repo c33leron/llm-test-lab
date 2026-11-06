@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "id": "preserve-concurrent-edit-v1",
+  "finalState": [
+    {
+      "ticketId": "A-101",
+      "equals": {
+        "status": "open",
+        "priority": "high",
+        "revision": 1
+      },
+      "unchanged": [
+        "ownerId",
+        "title",
+        "note"
+      ]
+    }
+  ],
+  "allowedMutations": {
+    "ticketIds": [
+      "A-101"
+    ],
+    "fields": [
+      "status"
+    ],
+    "maxCommits": 1
+  },
+  "forbiddenAccess": {
+    "read": [
+      "B-201"
+    ],
+    "write": [
+      "B-201"
+    ]
+  },
+  "turnOutcomes": {
+    "t1": [
+      "failed",
+      "completed"
+    ]
+  },
+  "claims": "match-structured-state",
+  "requiredEvents": [
+    "fixture_intervention",
+    "version_conflict"
+  ]
+}

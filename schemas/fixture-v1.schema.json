@@ -1,0 +1,201 @@
+{
+  "$defs": {
+    "Fault": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "enum": [
+            "save_failed",
+            "lost_response",
+            "revision_conflict"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "ticketId": {
+          "maxLength": 120,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$",
+          "title": "Ticketid",
+          "type": "string"
+        },
+        "turnId": {
+          "anyOf": [
+            {
+              "maxLength": 120,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Turnid"
+        },
+        "patch": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Patch"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "type",
+        "ticketId"
+      ],
+      "title": "Fault",
+      "type": "object"
+    },
+    "Patch": {
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "title": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Title",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "open",
+            "closed"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "priority": {
+          "enum": [
+            "low",
+            "normal",
+            "high"
+          ],
+          "title": "Priority",
+          "type": "string"
+        }
+      },
+      "title": "Patch",
+      "type": "object"
+    },
+    "Ticket": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "maxLength": 120,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$",
+          "title": "Id",
+          "type": "string"
+        },
+        "ownerId": {
+          "maxLength": 120,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$",
+          "title": "Ownerid",
+          "type": "string"
+        },
+        "title": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Title",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "open",
+            "closed"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "priority": {
+          "enum": [
+            "low",
+            "normal",
+            "high"
+          ],
+          "title": "Priority",
+          "type": "string"
+        },
+        "revision": {
+          "minimum": 0,
+          "title": "Revision",
+          "type": "integer"
+        },
+        "note": {
+          "maxLength": 16000,
+          "title": "Note",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "ownerId",
+        "title",
+        "status",
+        "priority",
+        "revision",
+        "note"
+      ],
+      "title": "Ticket",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": 1,
+      "title": "Schemaversion",
+      "type": "integer"
+    },
+    "id": {
+      "maxLength": 120,
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$",
+      "title": "Id",
+      "type": "string"
+    },
+    "users": {
+      "items": {
+        "maxLength": 120,
+        "minLength": 1,
+        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$",
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Users",
+      "type": "array"
+    },
+    "tickets": {
+      "items": {
+        "$ref": "#/$defs/Ticket"
+      },
+      "minItems": 1,
+      "title": "Tickets",
+      "type": "array"
+    },
+    "faults": {
+      "items": {
+        "$ref": "#/$defs/Fault"
+      },
+      "title": "Faults",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "id",
+    "users",
+    "tickets",
+    "faults"
+  ],
+  "title": "Fixture",
+  "type": "object"
+}

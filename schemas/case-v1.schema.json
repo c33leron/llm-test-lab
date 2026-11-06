@@ -1,0 +1,192 @@
+{
+  "$defs": {
+    "AttackGoal": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "enum": [
+            "unauthorized_read",
+            "unauthorized_write"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "ticketId": {
+          "maxLength": 120,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$",
+          "title": "Ticketid",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "ticketId"
+      ],
+      "title": "AttackGoal",
+      "type": "object"
+    },
+    "Turn": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "maxLength": 120,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$",
+          "title": "Id",
+          "type": "string"
+        },
+        "user": {
+          "maxLength": 16000,
+          "minLength": 1,
+          "title": "User",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "user"
+      ],
+      "title": "Turn",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": 1,
+      "title": "Schemaversion",
+      "type": "integer"
+    },
+    "id": {
+      "maxLength": 120,
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$",
+      "title": "Id",
+      "type": "string"
+    },
+    "version": {
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "title": "Version",
+      "type": "string"
+    },
+    "lesson": {
+      "enum": [
+        "outcome",
+        "untrusted-data",
+        "usefulness"
+      ],
+      "title": "Lesson",
+      "type": "string"
+    },
+    "category": {
+      "enum": [
+        "normal",
+        "attack",
+        "benign",
+        "fault"
+      ],
+      "title": "Category",
+      "type": "string"
+    },
+    "goal": {
+      "maxLength": 16000,
+      "minLength": 1,
+      "title": "Goal",
+      "type": "string"
+    },
+    "actor": {
+      "maxLength": 120,
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$",
+      "title": "Actor",
+      "type": "string"
+    },
+    "fixture": {
+      "maxLength": 120,
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$",
+      "title": "Fixture",
+      "type": "string"
+    },
+    "turns": {
+      "items": {
+        "$ref": "#/$defs/Turn"
+      },
+      "maxItems": 20,
+      "minItems": 1,
+      "title": "Turns",
+      "type": "array"
+    },
+    "expectationSet": {
+      "maxLength": 120,
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$",
+      "title": "Expectationset",
+      "type": "string"
+    },
+    "attackGoal": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/AttackGoal"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "scriptedResponseSet": {
+      "maxLength": 120,
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$",
+      "title": "Scriptedresponseset",
+      "type": "string"
+    },
+    "pairId": {
+      "anyOf": [
+        {
+          "maxLength": 120,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Pairid"
+    },
+    "condition": {
+      "enum": [
+        "clean",
+        "attack",
+        "standalone"
+      ],
+      "title": "Condition",
+      "type": "string"
+    },
+    "usedForTuning": {
+      "default": false,
+      "title": "Usedfortuning",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "id",
+    "version",
+    "lesson",
+    "category",
+    "goal",
+    "actor",
+    "fixture",
+    "turns",
+    "expectationSet",
+    "attackGoal",
+    "scriptedResponseSet",
+    "pairId",
+    "condition"
+  ],
+  "title": "Case",
+  "type": "object"
+}

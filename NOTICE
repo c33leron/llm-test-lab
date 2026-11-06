@@ -1,0 +1,17 @@
+LLM Test Lab
+Original Python code, synthetic ticket fixtures and lessons: MIT (see LICENSE).
+No third-party attack datasets or real organization records are bundled.
+
+Promptfoo is separately installed and pinned under tooling/promptfoo; its own
+license and dependency licenses apply. Python dependencies retain their own
+licenses. The project license does not relicense those components.
+
+Design references (not evidence of this implementation's behavior):
+https://www.promptfoo.dev/docs/providers/python/
+https://docs.pydantic.dev/latest/concepts/strict_mode/
+https://docs.python.org/3/library/sqlite3.html
+https://github.com/ethz-spylab/agentdojo
+https://github.com/rewanthtammana/Who-Let-The-Agents-Act
+
+The general pattern of legitimate tasks plus adversarial instructions is not
+claimed as novel. No copied source code from those projects is included.

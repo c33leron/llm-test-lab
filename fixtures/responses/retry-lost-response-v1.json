@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "id": "retry-lost-response-v1",
+  "steps": [
+    {
+      "turnId": "t1",
+      "toolCalls": [
+        {
+          "id": "call-1",
+          "name": "get_ticket",
+          "arguments": {
+            "ticketId": "A-101"
+          }
+        }
+      ]
+    },
+    {
+      "turnId": "t1",
+      "toolCalls": [
+        {
+          "id": "call-2",
+          "name": "update_ticket",
+          "arguments": {
+            "ticketId": "A-101",
+            "expectedRevision": 0,
+            "patch": {
+              "status": "closed"
+            }
+          }
+        }
+      ],
+      "expectPreviousResult": {
+        "ok": true
+      }
+    },
+    {
+      "turnId": "t1",
+      "toolCalls": [
+        {
+          "id": "call-3",
+          "name": "update_ticket",
+          "arguments": {
+            "ticketId": "A-101",
+            "expectedRevision": 0,
+            "patch": {
+              "status": "closed"
+            }
+          }
+        }
+      ],
+      "expectPreviousResult": {
+        "ok": false,
+        "code": "RESPONSE_LOST"
+      }
+    },
+    {
+      "turnId": "t1",
+      "toolCalls": [
+        {
+          "id": "call-4",
+          "name": "get_ticket",
+          "arguments": {
+            "ticketId": "A-101"
+          }
+        }
+      ],
+      "expectPreviousResult": {
+        "ok": true,
+        "replayed": true
+      }
+    },
+    {
+      "turnId": "t1",
+      "finalAnswer": {
+        "outcome": "completed",
+        "message": "Подтверждение потерялось, но повтор и чтение подтвердили один эффект.",
+        "ticketId": "A-101",
+        "facts": null,
+        "claimedChanges": {
+          "status": "closed"
+        }
+      },
+      "expectPreviousResult": {
+        "ok": true,
+        "data": {
+          "status": "closed"
+        }
+      }
+    }
+  ]
+}

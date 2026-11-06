@@ -1,0 +1,51 @@
+{
+  "status": "technical-alpha-learning-route-verified",
+  "date": "2026-11-06",
+  "version": "0.1.0a1",
+  "published": false,
+  "sourceMode": "fixture",
+  "modelCalls": 0,
+  "pytest": {
+    "macOS-arm64": 357,
+    "Linux-amd64-on-ARM-Docker": 357
+  },
+  "browser": "automated CUA desktop + 390px viewport, not human acceptance",
+  "verifiedBundles": {
+    "macOS-release-controls": 48,
+    "Linux-release-controls": 45,
+    "browser-completed-mission": 15
+  },
+  "outOfScope": [
+    "live local model",
+    "live cloud model",
+    "96-attempt reference matrix",
+    "two independent novice observations",
+    "native Windows",
+    "native mobile device"
+  ],
+  "projectHashesSha256": "32c89e10ebc46578c7d651b713ada2a454eabf3fa6bd38d5e34bccd434c49a32",
+  "artifacts": {
+    "browser-session-summary.json": "22aa82e88f6298e86a07f3c5a4a82bd5bb9193ff0e8af634b550eed4a87e89ed",
+    "complete-desktop.jpg": "692bf7d9b3e4ab59497cd464729530c323ef65bf9b2246481ed0b8834f27506e",
+    "complete-mobile.jpg": "ec6d40c79ba5fabee86f0f8344443215a45c427ca379d49ff0a2a67b00e9e4b2",
+    "linux-core-final.txt": "b35b1c7c0ba7f6de67905aa51aa57a06d683285c2e784c3127d6121a07499140",
+    "linux-exit-codes-retest.txt": "6900156ef66417fc4021f01f242e774af495c9eb6c3182f183818b0430991452",
+    "linux-format-retest.txt": "dc4926f0ff1eb5146bdfae4320e66a9d47be58d65873d37a310b72e70efe1043",
+    "linux-learning-process-targeted.txt": "9687b52127f621be8895202ea512ae8a7efd3f6dca08a519d90fcdd46e3e59aa",
+    "linux-manifest.json": "e58be8998a3c95a9f3c4fb8e7103835eedcff649088854142ecd816a48c79657",
+    "linux-mypy-retest.txt": "4c4a1f687213d361065f9094b27b15c087d3754121b66f0e8580a9c699ab6426",
+    "linux-network-deny-retest.txt": "06ac702134de974b95f8a0e0e04187fa7588c73816a537aa6890dc5952438b8c",
+    "linux-pytest-retest.txt": "fb456012c8ce46c808c965ab6b9d9a454282ae1e30ae9cf83e1292c57f02c23f",
+    "linux-ruff-retest.txt": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "linux-schema-retest.txt": "de230c9730708ea8984c56276252a2db28da8255061826626d6df056db50e520",
+    "linux-smoke-final.txt": "2782a9c54fe57c4e3a379b820b3a8de5f23242487338b359569c48b47e37d2bd",
+    "macos-build-final.txt": "d861dd77a49b5a4d07019227e9477f0b3e55b435760b58aaf57af00d6967dd36",
+    "macos-checks-final.txt": "a2b5ae95394adc98f79939f2f0d0c5ac557dc66baa987b02014299a2a9b0bfa5",
+    "macos-core-final.txt": "3f28bdce9c387abe0716556073df65737c483aa520e286dd11c0c181514ac90c",
+    "macos-f02-final.txt": "555696947d1fadb9f51149d88943350d1ba03196d33559faff848840b25c63f7",
+    "macos-manifest.json": "ec2edd776865ada20b3732b7e24d8ccd0403c549660b206f90b5a1fee4bd0d81",
+    "macos-pytest-final.txt": "5b19bbab226110d7d9b0fb9119e9789d8cddbbc5b7001f15a58201e709aa812c",
+    "macos-smoke-final.txt": "18bb1ac471056d5790e4c6fc3a82a2c68b6d2392da6e9eb7c2dbb8c01c95ad9d",
+    "transfer-failure.jpg": "c9c19b4a99cb99b3791901df59184a857c1956804a557ab8733b43f255971951"
+  }
+}
