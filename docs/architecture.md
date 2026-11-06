@@ -1,40 +1,31 @@
-# Как связан результат
+# Как устроена лаба
 
 ```text
-JSON case + fixture + expectation + response script + variant/profile
-  → strict registry validation + pair validation
-  → immutable plan with input hashes and explicit upper bounds
-  → Python CLI starts pinned Promptfoo in a clean run directory
-  → Python provider claims exactly one approved cell in control.sqlite
-  → bounded agent loop feeds one user turn at a time
-     → scripted response OR explicit HTTP transport
-     → strict tool schema → ACL → idempotency → revision → SQLite transaction
-  → fresh read-only connection checks state and durable audit
-  → envelope + JSON/Markdown/HTML evidence + lab gate
+Сценарий + исходные данные + ожидания + источник ответов
+  → план с хешами и лимитами
+  → Promptfoo запускает матрицу
+  → Python-агент получает заданные действия или ответ модели
+  → инструменты проверяют доступ и меняют SQLite
+  → независимые проверки читают состояние и события
+  → сохранённые доказательства и отчёт
 ```
 
-Promptfoo исполняет конечную матрицу. `run_control/planning.py` только раскрывает список ячеек; он не запускает их собственным циклом. Повторный callback одной ячейки не получает новое право на действие. Управляющий SQLite-файл отдельно от предметного `state.sqlite`; tools не умеют обращаться к нему, shell, сети, произвольному SQL или чужим attempts.
+Python отвечает за агента, инструменты, транспорт и проверки. Promptfoo — планировщик матрицы, не вторая реализация агента. Повторный callback одной ячейки не даёт права исполнить её заново. Управление запуском хранится отдельно в `control.sqlite`; инструменты работают только со своей `state.sqlite`.
 
-`contracts/` задаёт strict Pydantic-модели и JSON Schema. `registry.py` связывает локальные IDs. `tickets/` отвечает за бизнес-действия, а `oracles/` читает факты независимо от ответа модели. `agent/` ограничивает число вызовов, переходы ходов и deadline. `transports/` нормализует Ollama и один Chat Completions compatible протокол без stream/retry/redirect. `evidence/` сохраняет bundle и проверяет hashes; `reporting/` показывает их без исполнения содержимого. `promptfoo_adapter/` — только bridge и четыре именованные assertions. `cli/` управляет пользовательским запуском.
+Где искать код: `contracts/` и `registry.py` — форматы и связи; `agent/` и `transports/` — ход диалога и запросы; `tickets/` — действия; `oracles/` — независимая оценка; `evidence/` и `reporting/` — сохранение и показ результата.
 
-## Одна мутация
+## Запись и повтор
 
-В транзакции вместе сохраняются ticket, новая revision, audit commit и результат commandId. При повторе той же команды сначала проверяется ACL, затем ранее сохранённый canonical payload. Exact replay возвращает старый результат даже со старой revision. Другой payload на том же commandId даёт COMMAND_CONFLICT. Неуспешный вызов до commit не закрепляет commandId. Noop не увеличивает revision, но закрепляет успешную команду.
+Одна транзакция сохраняет заявку, новую revision, событие commit и результат commandId. Повтор той же команды возвращает прежний результат после проверки доступа. Другой payload с тем же ID даёт `COMMAND_CONFLICT`. Ошибка до commit не закрепляет ID; noop закрепляет команду, но не меняет revision.
 
-Principal и commandId создаёт driver, а не модель. commandId новый на каждый пользовательский ход; после успешного commit этого хода вторая смысловая мутация не разрешена даже в vulnerable. Намеренно выключается **только ACL**, не остальные ограничения host/domain.
+Личность и commandId задаёт приложение, не модель. На каждом пользовательском ходе создаётся новый ID; вторая смысловая мутация после успешной записи запрещена даже в уязвимом варианте.
 
-## Учебный маршрут
+## Веб-урок
 
-`learning/static/` отображает семь шагов и отправляет только ограниченные JSON-команды. `learning/state.py` хранит прогресс в отдельной SQLite-базе с монотонной revision, а `learning/service.py` проверяет порядок шагов и собирает факты из неизменяемых attempts. Браузер не выставляет verdict и не исполняет политику.
+`learning/static/` показывает шаги; `learning/state.py` хранит прогресс; `learning/service.py` проверяет переходы и читает результаты. Сервер передаёт план отдельному `learning.process`, который использует тот же Promptfoo и те же проверки. Браузер не оценивает ответ и не исполняет правило сам.
 
-HTTP-поток не запускает второй scheduler. Он создаёт обычный immutable plan для L01–L05 и отдельный `learning.process`, который вызывает существующий `execute_plan()` из главного потока Python. Далее работают те же Promptfoo, bridge, tools и oracles. Child следит за HTTP-parent, а существующий watchdog — за управляемой группой Promptfoo.
-
-`LearningPolicy` явно связывает источник личности, правило владения, охват чтения/записи и время проверки. Вариант `learning` разрешён только пяти fixture cases; он не добавляется к обычному `--variants all`. Сначала выполняется исходный L01, затем L01/L02/L03/L05 с выбранной политикой и отдельно L04 с другим пользователем. Критерии — сохранённая обычная задача и отсутствие наблюдаемого нарушения, не равенство политики готовому ответу. HTML/JS/CSS интерфейса тоже входят в хеши плана.
+`LearningPolicy` задаёт источник личности, условие доступа, охват действий и время проверки. Вариант `learning` доступен только L01–L05 и не входит в обычное `--variants all`. Результат определяется действиями и сохранённой задачей, не совпадением с готовым правилом. Файлы интерфейса тоже входят в хеши плана.
 
 ## Отмена
 
-Run-wide reservations живут в SQLite. Mutation guard сериализует отмену и commit. Watchdog следит за владельцем и управляемой группой процессов; HTTP ожидание тоже периодически проверяет cancel/deadline. Уже committed действие сохраняется. Незачатые ячейки — not_run, а не искусственные успешные envelopes. Остановка локального HTTP-клиента не доказывает прекращения удалённого вычисления.
-
-## Чего здесь нет
-
-Своего matrix scheduler, SaaS, регистрации, ORM, очереди, agent framework, произвольных Python-выражений в cases, обязательного LLM-судьи, RAG/MCP/голоса. Сначала проверяем границу в маленьком домене, а не строим платформу, где невозможно объяснить ни один результат.
+Разрешения на действия и отмена согласуются через SQLite. Watchdog следит за владельцем и группой процессов; child учебного сервера — за HTTP-parent. Уже записанное действие сохраняется. Незачатые ячейки остаются `not_run`, а частичный опыт не становится безопасным только потому, что выполнение остановилось.

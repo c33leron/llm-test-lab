@@ -1,46 +1,44 @@
-# Live — отдельный эксперимент
+# Подключить модель
 
-**Проверенных моделей в поставке пока нет.** Два профиля — experimental templates. Transport tests с HTTP stubs подтверждают wire/ошибки/лимиты, а не качество или совместимость настоящей модели. Probe выполняет ограниченную проверку C05/C01/C10 (до 18 запросов) и не заменяет граничные и аппаратные проверки из ТЗ. Он сохраняет отдельный conformance.json, а непроверенные свойства не объявляет пройденными.
+Это пока экспериментальный **CLI-режим**: модель работает с нашими заявками и инструментами, а не с произвольным внешним приложением. Профили в поставке — шаблоны; совместимость с настоящими моделями ещё не подтверждена.
 
 ## Ollama
 
-Установи Ollama и скачай tool-capable модель самостоятельно. Задай точный tag через переменную `LLM_LAB_LOCAL_MODEL`. У процесса daemon должны быть выключены облачные функции; `OLLAMA_NO_CLOUD=1` в одном только терминале lab ничего не доказывает. Нужны версия Ollama, artifact/digest, hardware, cold/warm время и проверка без upstream egress. Лаба не перезапускает daemon и не скачивает гигабайты автоматически.
+Установи Ollama и скачай модель с поддержкой tools самостоятельно. Подставь её точный tag:
 
 ```sh
 export LLM_LAB_LOCAL_MODEL='your-downloaded-model-tag'
-./lab plan --profile local-reference --case C01 --variant enforced
-./lab probe --profile local-reference
+./lab plan --profile local-reference --case C01 --variant enforced --max-inference-calls 6 --output plans/local-one.json
+./lab run --plan plans/local-one.json --confirm-live
 ```
 
-Замени tag своим реально установленным значением. Указание модели — не обещание её tools-поддержки. До первого inference проверь plan. Отсутствие подтверждённой local-only конфигурации означает experimental, не «доказанно без облака».
+Сначала прочитай созданный план, потом выполняй `run`. Лаба не скачивает модели и не меняет настройки daemon. Для действительно локального опыта проверь модель/digest, конфигурацию daemon и отсутствие внешних соединений. Переменная `OLLAMA_NO_CLOUD=1` только в терминале lab этого не доказывает.
 
-## Cloud
+## Облачный провайдер
 
-`profiles/cloud-reference.json` описывает Chat Completions endpoint с native function tools и явным `outputTokenParameter=max_completion_tokens`. Для совместимого провайдера с прежним контрактом можно выбрать `max_tokens` в отдельном профиле; скрытого повторного запроса с другим параметром нет. Это **не обещание поддержки любой OpenAI-compatible модели**. Дополнительные generation parameters проверяются до запроса; для reasoning-моделей нужен отдельно проверенный профиль. Поле `think` допускается только для Ollama, `reasoning_effort` — только для Chat Completions. Их поддержка конкретной моделью должна быть измерена. Ключ экспортируй локально без записи в shell history; не отправляй его в чат или JSON-профиль. Имя переменной — `LLM_LAB_API_KEY`, модель — `LLM_LAB_CLOUD_MODEL`.
+В `profiles/cloud-reference.json` уже задан HTTPS endpoint и Chat Completions-протокол с native tools: UTF-8 JSON, без stream и сжатия. Укажи точную модель через `LLM_LAB_CLOUD_MODEL`, а ключ — через окружение `LLM_LAB_API_KEY`. Не записывай секрет в профиль, команду, shell history или GitHub.
 
 ```sh
-./lab plan --profile cloud-reference --case C01 --variant enforced --output plans/cloud-one.json
+./lab plan --profile cloud-reference --case C01 --variant enforced --max-inference-calls 6 --output plans/cloud-one.json
 ./lab run --plan plans/cloud-one.json --confirm-live
 ```
 
-План может отправить до шести запросов на один attempt, не один HTTP на «один тест». Верхняя граница токенов не ограничивает input billing или внутренние особенности тарифа. Cost unknown; денежного hard cap нет. Никакого auto fallback и платного judge.
+Для другого провайдера создай [отдельный профиль](extending.md). `outputTokenParameter` выбирается явно: `max_completion_tokens` или `max_tokens`; повтор с другим параметром не выполняется. `think` допустим только для Ollama, `reasoning_effort` — для Chat Completions. Название «compatible» не гарантирует поддержку конкретной модели.
 
-## Reference acceptance
+**Один опыт может сделать несколько запросов.** В примерах лимит — шесть. Это ограничение числа вызовов, не расходов: денежного hard cap нет, входные токены тоже могут оплачиваться. Отмена локального ожидания не гарантирует остановку вычисления у провайдера. Автоматического fallback и платного judge нет.
 
-До supported claim нужны текстовый ответ, native tool calls и продолжение после result, последовательные вызовы, final JSON, timeout/abort, output cap, usage, boundary контекста и отсутствие скрытого truncation. Консервативный byte-based context guard текущего transport — ограничитель experimental-пути, не проверенный tokenizer любого профиля.
+## Проверить совместимость
 
-Полная release-reference: 12 cases ×3 variants ×2 модели =72 attempts, ещё по два повтора C01/C08 =24; всего96, максимум576 inference calls. Установленный preset не исполняется автоматически:
+`./lab probe --profile local-reference` **сразу вызывает модель**: C05/C01/C10, максимум 18 запросов. Результат сохраняется в `conformance.json`. Это короткая проверка, не сертификат поддержки.
+
+Для `compatibility=supported` нужны связанные доказательства работы текста, native tools и их результатов, final JSON, timeout/abort, usage, лимитов вывода и контекста. Для Ollama дополнительно проверяется local-only работа. `conformanceEvidence` привязывает их к точной модели, endpoint, настройкам, коду и зависимостям; смена входов требует новой проверки. Fixture и одна успешная C01 этого не подтверждают.
+
+Текущий context guard оценивает размер по байтам, а не универсальным tokenizer: точную границу контекста каждой модели нужно проверять отдельно.
+
+Полную матрицу можно сначала спланировать, не запуская её:
 
 ```sh
 ./lab plan --suite release-reference --profiles local-reference,cloud-reference --variants all --max-inference-calls 576 --output plans/release.json
 ```
 
-При неверной модели/неизвестном исходе/таймауте сохраняй исходный результат. Повтор — новый attempt с чистой БД, не стирание неудобной ячейки. Ни этот файл, ни зелёный fixture run не свидетельствуют, что reference matrix выполнена.
-
-## Что означает supported
-
-Одной строки `compatibility=supported` недостаточно. Ссылка `conformanceEvidence` должна вести на существующие локальные доказательства, связанные с точной моделью, endpoint, настройками, исходниками, runtime pins и lockfiles. Изменение этих входов требует новой проверки. Fixture не может подтвердить live support. Граничные проверки, отмена и local-only свойства требуют отдельных связанных артефактов; их нельзя получить из одной зелёной строки C01. Формат проверяет `llm_test_lab.conformance`, но хеши не являются подписью против владельца компьютера.
-
-Транспорт читает ответ с ограничением размера во время получения, а не после неограниченного скачивания. Автоматического повтора или перехода на другой endpoint нет. Поддерживается UTF-8 JSON без сжатия ответа (Accept-Encoding: identity).
-
-Wire-поля сверены с [документацией Chat Completions](https://developers.openai.com/api/reference/resources/chat/subresources/completions/methods/create) и [Ollama chat](https://docs.ollama.com/api/chat); это основание реализации, не доказательство совместимости живой модели.
+Это 96 опытов с бюджетом до 576 запросов, не выполненная оценка моделей. Сохраняй неудачные и неполные результаты; повтор создаёт новый опыт с чистой базой.
