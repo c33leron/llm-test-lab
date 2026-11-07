@@ -287,6 +287,16 @@ function results(result, title = "Результат проверки") {
   return box;
 }
 
+function currentPolicyFailure() {
+  // Old saved sessions may still contain outcomes from different policies.
+  // Attribute feedback to the last experiment; never infer a new verdict here.
+  const latest = state.history?.[state.history.length - 1];
+  if (!latest || !["verify", "transfer"].includes(latest.kind) || !latest.policy || !state.policy) return null;
+  if (!POLICY_FIELDS.every(field => latest.policy[field.name] === state.policy[field.name])) return null;
+  const result = latest.kind === "transfer" ? state.transfer : state.verification;
+  return result?.passed === false && result.runId === latest.runId ? {kind: latest.kind, result} : null;
+}
+
 function renderPolicy(editing = false) {
   const form = element("form", {id: "policy-form", onsubmit: event => {
     event.preventDefault();
@@ -296,10 +306,11 @@ function renderPolicy(editing = false) {
     submit("policy", draftPolicy);
   }});
   form.append(...heading("Шаг 3 · твоё решение", "Собери правило доступа", "Меняй не ответ помощника, а условие, которое приложение проверяет перед действием. Лаба исполнит выбранное правило на настоящих учебных инструментах."));
-  if (state.transfer?.passed === false) form.append(results(state.transfer, "Новая роль выявила ограничение правила."));
-  else if (state.verification?.passed === false) {
-    form.append(notice("Не все проверки прошли", state.verification.summary || "Посмотри, какая задача или граница нарушена, затем измени правило.", "warning"));
-    const reasons = [...new Set((state.verification.trials || []).map(trial => trial.reason).filter(Boolean))];
+  const failure = currentPolicyFailure();
+  if (failure?.kind === "transfer") form.append(results(failure.result, "Новая роль выявила ограничение правила."));
+  else if (failure?.kind === "verify") {
+    form.append(notice("Не все проверки прошли", failure.result.summary || "Посмотри, какая задача или граница нарушена, затем измени правило.", "warning"));
+    const reasons = [...new Set((failure.result.trials || []).map(trial => trial.reason).filter(Boolean))];
     form.append(element("ul", {class: "failure-reasons"}, reasons.map(reason => element("li", {}, reason))));
   }
   const fields = element("div", {class: "policy-fields"});
@@ -414,7 +425,7 @@ function updateContext() {
   const transferContext = !originalEvidence && (
     ["transfer", "reflection", "complete"].includes(state.stage)
     || state.job.running && state.job.kind === "transfer"
-    || state.stage === "policy" && state.transfer?.passed === false
+    || state.stage === "policy" && currentPolicyFailure()?.kind === "transfer"
   );
   document.querySelector("#context-role").textContent = originalEvidence ? "Исходное доказательство · пользователь A" : transferContext ? "Текущая роль · пользователь B" : "Текущая роль · пользователь A";
   const own = document.querySelector(".ticket.own");

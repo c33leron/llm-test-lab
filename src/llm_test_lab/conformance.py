@@ -22,6 +22,7 @@ from llm_test_lab.contracts import (
 )
 
 BASE_REQUIREMENTS = {
+    "model_identity",
     "text_response",
     "native_tool_call",
     "tool_result_roundtrip",
@@ -41,6 +42,7 @@ LOCAL_REQUIREMENTS = {
     "cold_warm_measurement",
 }
 LIMITED_REQUIREMENTS = {
+    "model_identity",
     "text_response",
     "native_tool_call",
     "tool_result_roundtrip",
@@ -415,6 +417,17 @@ def _usage(observation: Observation, manifest: dict[str, JsonValue]) -> str:
     return "pass"
 
 
+def _model_identity(observations: list[Observation], model: str, *, complete: bool) -> str:
+    # movingAlias declares possible drift; it is not an alias-to-provider-ID mapping.
+    # Conformance requires the exact provider ID, without prefix/case heuristics.
+    # Experimental executions may still use aliases, but cannot certify a different ID.
+    if any(response.get("model") != model for o in observations for response in o.responses):
+        return "fail"
+    if complete and observations and all(o.responses for o in observations):
+        return "pass"
+    return "inconclusive"
+
+
 def assess_probe(run_dir: Path) -> dict[str, JsonValue]:
     """Assess immutable observations only. No HTTP, new attempt, or supported promotion."""
     from llm_test_lab.evidence import read_envelope
@@ -494,6 +507,7 @@ def assess_probe(run_dir: Path) -> dict[str, JsonValue]:
     complete = len(envelopes) == 3 and all(
         e.terminal_state == "completed" and e.evidence_integrity == "complete" for e in envelopes
     )
+    checks["model_identity"] = _model_identity(observations, model, complete=complete)
     errors = [error for observation in observations for error in observation.protocol_errors]
     final_valid = (
         complete
@@ -578,6 +592,7 @@ def assess_probe(run_dir: Path) -> dict[str, JsonValue]:
         "evidenceBundles": refs,
         "protocolErrors": cast(JsonValue, errors),
         "scope": {
+            "model_identity": "every observed provider model ID must exactly match the planned ID; aliases are not resolved automatically; this is metadata consistency, not model attestation",
             "sequential_tools": "get→update in one attempt, across distinct native responses, with matching tool-result roundtrips",
             "text_response": "text content observed in structured final replies, not a separate unconstrained-text probe",
             "output_cap_wire": "positive integer cap serialized within the planned ceiling; NOT provider boundary enforcement",
@@ -667,6 +682,10 @@ def validate_supported_profile(root: Path, profile: Profile, model: str | None =
             model=resolved,
             cap=profile.limits.max_output_tokens,
         )
+        if _model_identity([observation], resolved, complete=True) != "pass":
+            raise ValueError(
+                "CONFORMANCE_INVALID: provider model identity is missing or differs from the exact requested model; aliases are not resolved automatically"
+            )
         if not _valid_finals(
             envelope, observation, Case.model_validate(load_json(bundle / "case.json"))
         ):

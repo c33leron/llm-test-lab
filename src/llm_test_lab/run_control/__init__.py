@@ -6,6 +6,7 @@ import contextlib
 import json
 import os
 import sqlite3
+import tempfile
 import time
 from collections.abc import Iterator
 from pathlib import Path
@@ -53,12 +54,15 @@ class RunControl:
     @classmethod
     def create(cls, path: Path, plan: dict[str, Any], owner_pid: int) -> RunControl:
         path.parent.mkdir(parents=True, exist_ok=True)
-        # Exclusive creation prevents a second controller from resetting claims.
-        with path.open("xb"):
-            pass
-        control = cls(path)
-        with control._connection() as conn:
-            conn.executescript("""
+        # Build privately, close SQLite, then publish exclusively. Readers never
+        # observe a half-initialized control; an existing controller is not replaced.
+        fd, temporary_name = tempfile.mkstemp(prefix=".control-", suffix=".sqlite", dir=path.parent)
+        os.close(fd)
+        temporary = Path(temporary_name)
+        try:
+            control = cls(temporary)
+            with control._connection() as conn:
+                conn.executescript("""
                 CREATE TABLE run (id TEXT PRIMARY KEY, plan_hash TEXT NOT NULL,
                   status TEXT NOT NULL, owner_pid INTEGER NOT NULL, heartbeat REAL NOT NULL,
                   budget INTEGER NOT NULL, reserved INTEGER NOT NULL DEFAULT 0,
@@ -68,32 +72,37 @@ class RunControl:
                 CREATE TABLE reservations (id INTEGER PRIMARY KEY AUTOINCREMENT,
                   attempt_id TEXT NOT NULL REFERENCES cells(id), time REAL NOT NULL);
             """)
-            conn.execute(
-                "INSERT INTO run(id,plan_hash,status,owner_pid,heartbeat,budget) VALUES(?,?,?,?,?,?)",
-                (
-                    plan["runId"],
-                    plan["planHash"],
-                    "running",
-                    owner_pid,
-                    time.monotonic(),
-                    plan["maxInferenceCalls"],
-                ),
-            )
-            conn.executemany(
-                "INSERT INTO cells(id,cell) VALUES(?,?)",
-                [(c["attemptId"], json.dumps(c, ensure_ascii=False)) for c in plan["cells"]],
-            )
-        return control
+                conn.execute(
+                    "INSERT INTO run(id,plan_hash,status,owner_pid,heartbeat,budget) VALUES(?,?,?,?,?,?)",
+                    (
+                        plan["runId"],
+                        plan["planHash"],
+                        "running",
+                        owner_pid,
+                        time.monotonic(),
+                        plan["maxInferenceCalls"],
+                    ),
+                )
+                conn.executemany(
+                    "INSERT INTO cells(id,cell) VALUES(?,?)",
+                    [(c["attemptId"], json.dumps(c, ensure_ascii=False)) for c in plan["cells"]],
+                )
+            with temporary.open("rb") as source:
+                os.fsync(source.fileno())
+            os.link(temporary, path)
+        finally:
+            temporary.unlink(missing_ok=True)
+        return cls(path)
 
     @contextlib.contextmanager
     def _connection(self) -> Iterator[sqlite3.Connection]:
         if not self.path.is_file():
             raise ControlError("managed run control is missing")
         conn = sqlite3.connect(self.path, isolation_level=None, timeout=1.0)
-        conn.row_factory = sqlite3.Row
-        conn.execute("PRAGMA busy_timeout=1000")
-        conn.execute("PRAGMA foreign_keys=ON")
         try:
+            conn.row_factory = sqlite3.Row
+            conn.execute("PRAGMA busy_timeout=1000")
+            conn.execute("PRAGMA foreign_keys=ON")
             yield conn
         finally:
             conn.close()

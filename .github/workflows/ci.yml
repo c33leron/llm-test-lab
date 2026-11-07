@@ -24,6 +24,7 @@ jobs:
         run: ./lab setup
       - name: Static and contract checks
         run: |
+          .venv/bin/python scripts/check_publication.py
           .venv/bin/ruff check .
           .venv/bin/ruff format --check .
           .venv/bin/mypy src/llm_test_lab

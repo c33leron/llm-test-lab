@@ -244,11 +244,29 @@ test("sidebar switches ownership for transfer and explicitly names the current r
 });
 
 test("failed transfer keeps actor B visible while fixing, then verification returns to actor A", async () => {
-  const h = await harness(fresh({stage: "policy", revision: 9, policy, transfer: {passed: false, trials: []}}));
+  const h = await harness(fresh({stage: "policy", revision: 9, policy, transfer: {runId: "transfer-run", passed: false, trials: []},
+    history: [{kind: "transfer", runId: "transfer-run", policy}]}));
   assert.equal(h.body.querySelector(".ticket.own").querySelector("strong").textContent, "B-201");
   assert.ok(h.find("context-role").textContent.includes("пользователь B"));
-  h.queue.push(() => reply(fresh({stage: "verification", revision: 10, policy, transfer: {passed: false, trials: []}})));
+  h.queue.push(() => reply(fresh({stage: "verification", revision: 10, policy, transfer: null})));
   h.find("policy-form").dispatch("submit"); await flush();
   assert.equal(h.body.querySelector(".ticket.own").querySelector("strong").textContent, "A-101");
   assert.ok(h.find("context-role").textContent.includes("пользователь A"));
+});
+
+test("a newer policy verification replaces old transfer feedback even on reload", async () => {
+  const oldPolicy = {...policy, accessRule: "block_b201"};
+  const newPolicy = {...policy, accessRule: "deny_all"};
+  const transfer = {runId: "old-transfer", passed: false, summary: "OLD_TRANSFER_LEAK", trials: []};
+  const verification = {runId: "new-verification", passed: false, summary: "LATEST_NORMAL_WORK_BLOCKED", trials: []};
+  const persisted = fresh({stage: "policy", revision: 14, policy: newPolicy, transfer, verification,
+    history: [{kind: "transfer", runId: "old-transfer", policy: oldPolicy}, {kind: "verify", runId: "new-verification", policy: newPolicy}]});
+  for (let reload = 0; reload < 2; reload++) {
+    const h = await harness(persisted);
+    assert.match(h.find("lesson").textContent, /LATEST_NORMAL_WORK_BLOCKED/);
+    assert.doesNotMatch(h.find("lesson").textContent, /OLD_TRANSFER_LEAK/);
+    assert.equal(h.find("context-role").textContent, "Текущая роль · пользователь A");
+    assert.equal(h.find("policy-accessRule").value, "deny_all");
+    assert.equal(h.requests.length, 1, "reload must not rerun the experiment");
+  }
 });

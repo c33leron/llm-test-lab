@@ -147,6 +147,10 @@ class LessonService:
         def change(state: LessonState) -> None:
             _idle(state, {"policy", "verification"})
             state.policy = policy
+            # A saved rule starts a new experiment. Keep prior outcomes in
+            # history, not in the slots used to describe the current rule.
+            state.verification = None
+            state.transfer = None
             state.stage = "verification"
             state.message = "Правило сохранено. Сейчас проверим четыре объявленных сценария, а не совпадение с готовым ответом."
 

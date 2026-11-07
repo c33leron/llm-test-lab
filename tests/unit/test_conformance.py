@@ -45,7 +45,11 @@ async def probe(tmp_path, monkeypatch, request):
     )
     (root / "uv.lock").write_text("synthetic-lock-v1\n")
     (root / ".python-version").write_text("3.14.6\n")
-    local = getattr(request, "param", "cloud") == "ollama"
+    configured = getattr(request, "param", "cloud")
+    settings = configured if isinstance(configured, dict) else {"transport": configured}
+    local = settings.get("transport", "cloud") == "ollama"
+    response_models = settings.get("responseModels", ["mock-model"])
+    response_count = 0
     profile = Profile.model_validate(
         {
             "schemaVersion": 1,
@@ -57,6 +61,7 @@ async def probe(tmp_path, monkeypatch, request):
             "contextWindow": 32768,
             "limits": {"requestTimeoutMs": 1000, "maxOutputTokens": 512},
             "compatibility": "experimental",
+            "movingAlias": settings.get("movingAlias", True),
         }
     )
     dump_json(root / "profiles/mock-profile.json", profile.to_dict())
@@ -86,7 +91,12 @@ async def probe(tmp_path, monkeypatch, request):
         )
 
         def handler(request):
+            nonlocal response_count
             assert request.url.host == ("127.0.0.1" if local else "mock.invalid")
+            assert json.loads(request.content)["model"] == "mock-model"
+            observed_model = response_models[response_count % len(response_models)]
+            response_count += 1
+            identity = {"model": observed_model} if observed_model is not None else {}
             step = next(steps)
             if step.tool_calls:
                 message = {
@@ -118,7 +128,7 @@ async def probe(tmp_path, monkeypatch, request):
                 return httpx.Response(
                     200,
                     json={
-                        "model": self.model,
+                        **identity,
                         "done": True,
                         "done_reason": "stop",
                         "message": message,
@@ -129,7 +139,7 @@ async def probe(tmp_path, monkeypatch, request):
             return httpx.Response(
                 200,
                 json={
-                    "model": self.model,
+                    **identity,
                     "choices": [{"message": message, "finish_reason": reason}],
                     "usage": {"prompt_tokens": 10, "completion_tokens": 5},
                 },
@@ -253,6 +263,67 @@ async def test_limited_probe_read_only_and_never_supports(probe):
     }
 
 
+@pytest.mark.parametrize(
+    "probe",
+    [{"transport": transport, "movingAlias": False} for transport in ("cloud", "ollama")],
+    indirect=True,
+)
+async def test_exact_provider_model_identity_passes(probe):
+    root, directory, profile = probe
+    assert profile.moving_alias is False
+    result = assess_probe(directory)
+    assert result["checks"]["model_identity"] == "pass"
+    assert result["observedModelIds"] == ["mock-model"]
+    assert result["observedResponses"] == result["observedDispatches"] == 9
+    assert result["limitedProbePassed"] is True
+    if profile.transport == "chat-completions":
+        supported, _ = supported_record(root, directory, profile)
+        validate_supported_profile(root, supported, "mock-model")
+
+
+@pytest.mark.parametrize(
+    "probe",
+    [
+        {"transport": transport, "movingAlias": False, "responseModels": models}
+        for transport in ("cloud", "ollama")
+        for models in (
+            ["unexpected-other-model"],
+            [None],
+            ["mock-model", "unexpected-other-model"],
+        )
+    ],
+    indirect=True,
+)
+async def test_observed_provider_model_must_match_the_requested_model(probe):
+    root, directory, profile = probe
+    assert profile.moving_alias is False
+    result = assess_probe(directory)
+    # The wrong identity came from actual mock HTTP responses before persistence,
+    # not by rewriting otherwise valid evidence after the run.
+    assert result["observedResponses"] == result["observedDispatches"] == 9
+    assert result["limitedProbePassed"] is False
+    assert result["checks"]["model_identity"] == "fail"
+    if profile.transport == "chat-completions":
+        supported, _ = supported_record(root, directory, profile)
+        with pytest.raises(ValueError, match="provider model identity"):
+            validate_supported_profile(root, supported, "mock-model")
+
+
+@pytest.mark.parametrize(
+    "probe",
+    [{"movingAlias": True, "responseModels": ["mock-model-version-2"]}],
+    indirect=True,
+)
+async def test_alias_flag_does_not_authorize_an_unbound_provider_model(probe):
+    root, directory, profile = probe
+    result = assess_probe(directory)
+    assert result["checks"]["model_identity"] == "fail"
+    assert result["limitedProbePassed"] is False
+    supported, _ = supported_record(root, directory, profile)
+    with pytest.raises(ValueError, match="provider model identity"):
+        validate_supported_profile(root, supported, "mock-model")
+
+
 async def test_roundtrip_requires_exact_payload_and_native_call_identity(probe):
     _, directory, _ = probe
 
@@ -312,6 +383,7 @@ async def test_incomplete_probe_does_not_pass_final_or_full_conformance(probe):
     refresh(bundle)
     result = assess_probe(directory)
     assert result["checks"]["final_json"] == "inconclusive"
+    assert result["checks"]["model_identity"] == "inconclusive"
     assert result["limitedProbePassed"] is False
 
 

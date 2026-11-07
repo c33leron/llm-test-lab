@@ -11,6 +11,7 @@ Run `./lab setup` first. For a new scenario, start with [the extension guide](do
 .venv/bin/pytest
 .venv/bin/python -m llm_test_lab.contracts.schemas --check
 .venv/bin/python scripts/check_docs.py
+.venv/bin/python scripts/check_publication.py
 ./lab run --source fixture --suite core --variants all --gate fixture-contract
 ```
 
@@ -25,3 +26,5 @@ Keep a few rules in mind:
 - Keep dependency updates explicit: runtime version files, `uv.lock` and the Promptfoo lockfile belong in the diff. Test a fresh setup; avoid global installs and `npx latest`
 
 Live experiments are separate: use synthetic data, your own credentials and an explicit request budget. Never add a paid call to the default test suite.
+
+Run the publication check **before committing or pushing**; CI catches mistakes only after upload. For a source ZIP, add `--archive path/to/source.zip`. This checks the approved publisher handle in known author fields, not arbitrary secrets or personal data.

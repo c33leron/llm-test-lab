@@ -3,7 +3,11 @@
 ## Unreleased
 
 - Shorter README and guides; duplicate setup and acceptance pages removed
-- Named copyright holder in LICENSE; MIT terms unchanged
+- Publisher attribution uses `c33leron`; MIT terms unchanged
+- Reject missing run evidence in `inspect`; keep `doctor` usable when an old run is damaged
+- Show policy feedback from the latest matching experiment, including saved sessions
+- Reject mismatched provider model IDs during compatibility checks
+- Check publisher attribution before upload and in CI
 
 ## 0.1.0-alpha.1 — 2026-11-06
 

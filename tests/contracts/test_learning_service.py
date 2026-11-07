@@ -157,18 +157,29 @@ def test_full_mission_real_promptfoo_bad_rules_transfer_reload_and_tamper(tmp_pa
         state = settled(service)
         assert state.stage == "policy" and state.transfer["passed"] is False
 
+        old_transfer = state.transfer
+        saved = service.policy(state.revision, policy(accessRule="deny_all"))
+        assert saved["verification"] is None and saved["transfer"] is None
+        assert saved["history"][-1]["result"] == old_transfer
+        service.verify(saved["revision"])
+        state = settled(service)
+        assert state.stage == "policy" and state.verification["passed"] is False
+        assert state.transfer is None
+        assert all(t["security"] == "no_observed_violation" for t in state.verification["trials"])
+        assert state.history[-2]["result"] == old_transfer
+
         state = verified(service, policy())
         assert state.stage == "transfer" and len(state.verification["trials"]) == 4
         service.transfer(state.revision)
         state = settled(service)
         assert state.stage == "reflection" and state.transfer["passed"] is True
-        assert len(state.history) == 6
+        assert len(state.history) == 7
         assert (
             sum(
                 len(list((root / "runs" / h["runId"] / "attempts").iterdir()))
                 for h in state.history
             )
-            == 15
+            == 19
         )
 
         # Closing/reopening reads durable state, never reruns it.

@@ -20,8 +20,15 @@ from pydantic import ValidationError
 
 from llm_test_lab.contracts import Case, LabAttemptEnvelope, load_json
 from llm_test_lab.registry import Registry
-from llm_test_lab.run_control import RunControl
-from llm_test_lab.run_control.planning import Plan, make_plan, read_plan, sha256
+from llm_test_lab.run_control import ControlError, RunControl
+from llm_test_lab.run_control.planning import (
+    Plan,
+    PlanCell,
+    make_plan,
+    plan_digest,
+    read_plan,
+    sha256,
+)
 from llm_test_lab.validation import safe_validation_error
 
 from .output import emit, open_report, result_lines
@@ -162,8 +169,28 @@ def doctor(root: Path, record: bool, *, json_output: bool = False) -> int:
     elif not path.is_file() or load_json(path) != fingerprint:
         raise ValueError("ENVIRONMENT_MISMATCH: run setup, then lab doctor --record-installation")
     unfinished = []
+    unreadable = []
     for control_path in (root / "runs").glob("*/control.sqlite"):
-        snapshot = RunControl(control_path).snapshot()
+        try:
+            snapshot = RunControl(control_path).snapshot()
+            if snapshot.get("status") not in {
+                "running",
+                "partial",
+                "cancelled",
+                "finished",
+                "failed",
+            }:
+                raise ControlError("invalid historical run state")
+        except (sqlite3.DatabaseError, ControlError, OSError, ValueError):
+            unreadable.append(
+                {
+                    "runId": control_path.parent.name,
+                    "status": "unreadable",
+                    "errorCode": "RUN_CONTROL_UNREADABLE",
+                    "note": "Historical control data is incomplete or damaged; preserved without resuming actions.",
+                }
+            )
+            continue
         if snapshot["status"] in {"running", "partial", "cancelled"}:
             unfinished.append(
                 {
@@ -177,6 +204,7 @@ def doctor(root: Path, record: bool, *, json_output: bool = False) -> int:
         "inferenceCalls": 0,
         "installation": fingerprint,
         "unfinishedRuns": unfinished,
+        "unreadableRuns": unreadable,
         "locality": "not assessed; no model requests made",
     }
     emit(
@@ -186,6 +214,8 @@ def doctor(root: Path, record: bool, *, json_output: bool = False) -> int:
             f"Python {fingerprint['python']} · Node {fingerprint['node']} · Promptfoo {fingerprint['promptfoo']}",
             "Версии и lockfiles совпадают." + (" Fingerprint сохранён." if record else ""),
             f"Незавершённых исторических запусков: {len(unfinished)}. Они не возобновляются автоматически.",
+            f"Нечитаемых исторических запусков: {len(unreadable)}. Установка исправна; материалы этих запусков сохранены без изменений.",
+            *[f"RUN_CONTROL_UNREADABLE: {item['runId']}" for item in unreadable],
         ],
         json_output=json_output,
     )
@@ -279,6 +309,282 @@ def list_envelopes(run_dir: Path) -> list[LabAttemptEnvelope]:
         elif (attempt_dir / "state.sqlite").exists():
             result.append(recover_interrupted_bundle(attempt_dir))
     return result
+
+
+def inspect_run(
+    root: Path, run_dir: Path, *, full: bool, open_html: bool, json_output: bool
+) -> int:
+    """Verify the expected set, not merely the directories that survived."""
+    from llm_test_lab.evidence import read_envelope, recover_interrupted_bundle, verify_bundle
+    from llm_test_lab.reporting import load_report_context, summarize
+
+    errors: dict[str, list[str]] = {}
+
+    def reject() -> int:
+        emit(
+            {"status": "error", "exitCode": 3, "integrityErrors": errors},
+            [
+                "EVIDENCE_INVALID: доказательства изменены или неполны.",
+                *[f"{name}: {', '.join(items)}" for name, items in errors.items()],
+            ],
+            json_output=json_output,
+        )
+        return 3
+
+    try:
+        raw_plan = load_json(run_dir / "plan.json")
+        if not isinstance(raw_plan, dict):
+            raise ValueError("saved plan must be an object")
+        plan = Plan.model_validate(raw_plan)
+        # Historical inspection must not compare saved inputs to today's source.
+        if plan_digest(raw_plan) != plan.plan_hash or plan.run_id != run_dir.name:
+            raise ValueError("saved plan identity is invalid")
+        snapshot = RunControl(run_dir / "control.sqlite").snapshot()
+        if snapshot["id"] != plan.run_id or snapshot["plan_hash"] != plan.plan_hash:
+            raise ValueError("saved control does not match the plan")
+        cells = {row["id"]: row for row in snapshot["cells"]}
+        if set(cells) != {cell.attempt_id for cell in plan.cells}:
+            raise ValueError("saved control cell set does not match the plan")
+        for cell in plan.cells:
+            if PlanCell.model_validate_json(cells[cell.attempt_id]["cell"]) != cell:
+                raise ValueError("saved control cell does not match the plan")
+        if snapshot["status"] not in {"running", "partial", "cancelled", "finished", "failed"}:
+            raise ValueError("saved control status is invalid")
+    except (ValueError, OSError, sqlite3.DatabaseError, ControlError, KeyError, TypeError):
+        errors["run"] = ["saved plan/control is missing, damaged or inconsistent"]
+        return reject()
+
+    expected = {cell.attempt_id for cell in plan.cells}
+    attempts = run_dir / "attempts"
+    if attempts.is_symlink() or (
+        attempts.exists()
+        and (not attempts.is_dir() or attempts.resolve().parent != run_dir.resolve())
+    ):
+        errors["attempts"] = ["attempts container must be a directory inside the saved run"]
+        return reject()
+    for path in attempts.glob("*"):
+        if path.is_dir() and path.name not in expected:
+            errors[path.name] = ["attempt is not part of the saved plan"]
+    envelopes: list[LabAttemptEnvelope] = []
+    for cell in plan.cells:
+        row = cells[cell.attempt_id]
+        directory = attempts / cell.attempt_id
+        if row["state"] == "not_run":
+            if directory.exists():
+                errors[cell.attempt_id] = ["evidence exists for an unadmitted attempt"]
+            continue
+        partial_without_envelope = (
+            row["state"] in {"running", "interrupted"} and not row["envelope"]
+        )
+        if not directory.is_dir():
+            if not partial_without_envelope:
+                errors[cell.attempt_id] = ["required attempt directory is missing"]
+            continue
+        if directory.is_symlink() or directory.resolve().parent != attempts.resolve():
+            errors[cell.attempt_id] = ["attempt directory is outside the saved run"]
+            continue
+        if row["state"] == "running" and snapshot["status"] == "running":
+            # The writer may still be between SQLite/event/bundle writes. Do not
+            # recover an active attempt or label it interrupted from a partial read.
+            continue
+        try:
+            sealed = (directory / "envelope.json").is_file() or (
+                directory / "recovered/envelope.json"
+            ).is_file()
+            if sealed:
+                issues = verify_bundle(directory)
+                if issues:
+                    errors[cell.attempt_id] = issues
+                    continue
+                envelope = read_envelope(directory)
+                bundle = (
+                    directory
+                    if (directory / "envelope.json").is_file()
+                    else directory / "recovered"
+                )
+                bundle_manifest = load_json(bundle / "manifest.json")
+                if not isinstance(bundle_manifest, dict):
+                    raise ValueError("invalid attempt manifest")
+                # Early sealed bundles recorded the cell in their manifest,
+                # before separate initial-input snapshots were introduced.
+                frozen_cell = (
+                    load_json(directory / "cell.json")
+                    if (directory / "cell.json").is_file()
+                    else bundle_manifest.get("cell")
+                )
+            elif partial_without_envelope and (directory / "state.sqlite").is_file():
+                envelope = recover_interrupted_bundle(directory)
+                frozen_cell = load_json(directory / "cell.json")
+            elif partial_without_envelope:
+                continue
+            else:
+                errors[cell.attempt_id] = ["required attempt envelope is missing"]
+                continue
+            if (
+                envelope.attempt_id != cell.attempt_id
+                or envelope.case_id != cell.case_id
+                or envelope.variant != cell.variant
+                or envelope.source_mode != cell.source_mode
+                or envelope.profile_id != cell.profile_id
+                or PlanCell.model_validate(frozen_cell) != cell
+            ):
+                raise ValueError("attempt identity differs from saved plan")
+            if (
+                row["envelope"]
+                and LabAttemptEnvelope.model_validate_json(row["envelope"]) != envelope
+            ):
+                raise ValueError("control and saved envelope disagree")
+            if row["state"] not in {"running", "interrupted", envelope.terminal_state}:
+                raise ValueError("control and saved terminal state disagree")
+            envelopes.append(envelope)
+        except (ValueError, OSError, sqlite3.DatabaseError, ControlError, KeyError, TypeError):
+            errors[cell.attempt_id] = [
+                "attempt evidence is unreadable or differs from saved plan/control"
+            ]
+    if errors:
+        return reject()
+
+    try:
+        cases, expectations = load_report_context(run_dir, envelopes)
+        summary = summarize(
+            envelopes, planned=len(plan.cells), cases=cases, expectations=expectations
+        )
+        started = sum(row["state"] != "not_run" for row in cells.values())
+        missing_started = started - len(envelopes)
+        observed_ids = {envelope.attempt_id for envelope in envelopes}
+        in_progress = sum(
+            snapshot["status"] == "running"
+            and row["state"] == "running"
+            and row["id"] not in observed_ids
+            for row in cells.values()
+        )
+        stopped_without_envelope = missing_started - in_progress
+        summary["started"], summary["notRun"] = started, len(plan.cells) - started
+        summary["interruptedWithoutEnvelope"] = stopped_without_envelope
+        summary["inProgressWithoutEnvelope"] = in_progress
+        technical_count = summary["technicallyIncomplete"]
+        assert isinstance(technical_count, int)
+        summary["technicallyIncomplete"] = technical_count + missing_started
+        terminal_counts = summary["terminalCounts"]
+        assert isinstance(terminal_counts, dict)
+        if stopped_without_envelope:
+            known_interrupted = terminal_counts.get("interrupted", 0)
+            assert isinstance(known_interrupted, int)
+            terminal_counts["interrupted"] = known_interrupted + stopped_without_envelope
+        if in_progress:
+            terminal_counts["running"] = in_progress
+        manifest: dict[str, Any] = {}
+        if (run_dir / "manifest.json").is_file():
+            saved = load_json(run_dir / "manifest.json")
+            probe_failure = False
+            if (
+                isinstance(saved, dict)
+                and plan.gate == "conformance"
+                and snapshot["status"] in {"finished", "failed"}
+                and saved.get("conformanceRef") == "conformance.json"
+                and saved.get("exitCode") == 3
+                and saved.get("status") == "failed"
+            ):
+                assessment = load_json(run_dir / "conformance.json")
+                probe_failure = (
+                    isinstance(assessment, dict)
+                    and assessment.get("schemaVersion") == 1
+                    and assessment.get("status") == "inconclusive"
+                    and assessment.get("limitedProbePassed") is False
+                    and isinstance(assessment.get("error"), str)
+                )
+            if (
+                not isinstance(saved, dict)
+                or saved.get("runId") != plan.run_id
+                or saved.get("planHash") != plan.plan_hash
+                or (saved.get("status") != snapshot["status"] and not probe_failure)
+                or saved.get("gate") != plan.gate
+                or type(saved.get("exitCode")) is not int
+                or saved.get("exitCode") not in {0, 1, 3, 130}
+            ):
+                raise ValueError("run manifest identity differs")
+            manifest = dict(saved)
+            cached = saved.get("summary")
+            if not isinstance(cached, dict):
+                raise ValueError("run summary missing")
+            for key in (
+                "planned",
+                "started",
+                "notRun",
+                "completed",
+                "modelError",
+                "technicallyIncomplete",
+                "terminalCounts",
+            ):
+                if key in cached and cached[key] != summary[key]:
+                    raise ValueError("cached summary differs from saved evidence")
+            # This gate describes the original execution, not a rescore with today's rules.
+            if "gateResult" in cached:
+                gate = cached["gateResult"]
+                if not isinstance(gate, dict) or gate.get("gate") != plan.gate:
+                    raise ValueError("cached gate differs from saved plan")
+                for key in ("exitCode", "promptfooExitCode", "reasons"):
+                    if key not in gate or key not in saved:
+                        raise ValueError("cached gate verdict is incomplete")
+                    if key.endswith("Code") and (
+                        type(gate[key]) is not int or type(saved[key]) is not int
+                    ):
+                        raise ValueError("cached exit code type is invalid")
+                    if gate[key] != saved[key] and not (
+                        key == "exitCode" and probe_failure and gate[key] in {0, 1, 3}
+                    ):
+                        raise ValueError("cached gate and run verdict disagree")
+                if not isinstance(gate["reasons"], list) or not all(
+                    isinstance(reason, str) for reason in gate["reasons"]
+                ):
+                    raise ValueError("cached gate reasons are invalid")
+                summary["gateResult"] = gate
+        elif (run_dir / "report.md").exists() or snapshot["status"] == "finished":
+            raise ValueError("finished run manifest missing")
+    except (ValueError, OSError, sqlite3.DatabaseError, KeyError, TypeError):
+        errors["run"] = [
+            "saved run manifest/summary is missing or inconsistent with verified evidence"
+        ]
+        return reject()
+
+    incomplete = (
+        snapshot["status"] != "finished"
+        or manifest.get("exitCode") in {3, 130}
+        or len(envelopes) != len(plan.cells)
+        or any(
+            e.terminal_state not in {"completed", "model_error"}
+            or e.evidence_integrity != "complete"
+            for e in envelopes
+        )
+    )
+    code = 3 if incomplete else 0
+    payload = {
+        **manifest,
+        "runId": plan.run_id,
+        "status": manifest.get("status", snapshot["status"]),
+        "control": snapshot,
+        "summary": summary,
+        "inspectionExitCode": code,
+        "availableEvidence": [envelope.to_dict() for envelope in envelopes],
+    }
+    if (run_dir / "report.html").is_file():
+        payload["report"] = str(run_dir / "report.html")
+    if full and not json_output and (run_dir / "report.md").is_file():
+        print((run_dir / "report.md").read_text())
+    else:
+        emit(
+            payload,
+            result_lines(payload)
+            + (
+                ["Материалы неполны; незапущенные попытки не считаются успешными."]
+                if incomplete
+                else []
+            ),
+            json_output=json_output,
+        )
+    if open_html and (run_dir / "report.html").is_file():
+        open_report(root, run_dir / "report.html")
+    return code
 
 
 def parser() -> argparse.ArgumentParser:
@@ -612,61 +918,13 @@ def run_command(root: Path, args: argparse.Namespace) -> int:
             open_report(root, run_dir / "report.html")
         return code
     if args.command == "inspect":
-        from llm_test_lab.evidence import verify_bundle
-
-        run_dir = inside(root, args.run, "runs")
-        if not (run_dir / "report.md").exists():
-            envelopes = list_envelopes(run_dir)
-            snapshot = RunControl(run_dir / "control.sqlite").snapshot()
-            payload = {
-                "status": snapshot["status"],
-                "recovery": "read-only from saved inputs and transaction audit; no actions resumed and no source files changed",
-                "cells": [
-                    {"attemptId": cell["id"], "state": cell["state"]} for cell in snapshot["cells"]
-                ],
-                "availableEvidence": [envelope.to_dict() for envelope in envelopes],
-            }
-            emit(
-                payload,
-                [
-                    f"Запуск {run_dir.name}: {snapshot['status']}.",
-                    "Полного отчёта нет. Доступные факты восстановлены чтением audit; действия не возобновлялись.",
-                    f"Найдено попыток с доказательствами: {len(envelopes)}. --json показывает детали.",
-                ],
-                json_output=json_output,
-            )
-            return (
-                3
-                if any(
-                    envelope.terminal_state not in {"completed", "model_error"}
-                    for envelope in envelopes
-                )
-                or snapshot["status"] in {"partial", "cancelled"}
-                else 0
-            )
-        errors = {p.name: verify_bundle(p) for p in (run_dir / "attempts").glob("*") if p.is_dir()}
-        errors = {name: items for name, items in errors.items() if items}
-        if errors:
-            emit(
-                {"integrityErrors": errors},
-                [
-                    "EVIDENCE_INVALID: доказательства изменены или неполны.",
-                    *[f"{key}: {', '.join(value)}" for key, value in errors.items()],
-                ],
-                json_output=json_output,
-            )
-            return 3
-        manifest = load_json(run_dir / "manifest.json")
-        if not isinstance(manifest, dict):
-            raise ValueError("EVIDENCE_INVALID: invalid run manifest")
-        manifest["report"] = str(run_dir / "report.html")
-        if getattr(args, "full", False) and not json_output:
-            print((run_dir / "report.md").read_text())
-        else:
-            emit(manifest, result_lines(manifest), json_output=json_output)
-        if getattr(args, "open", False):
-            open_report(root, run_dir / "report.html")
-        return 0
+        return inspect_run(
+            root,
+            inside(root, args.run, "runs"),
+            full=args.full,
+            open_html=args.open,
+            json_output=json_output,
+        )
     if args.command == "compare":
         from llm_test_lab.reporting import load_report_context, render_comparison, summarize
 
