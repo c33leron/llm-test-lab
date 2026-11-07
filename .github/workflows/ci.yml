@@ -39,9 +39,22 @@ jobs:
             sandbox-exec -p '(version 1)(allow default)(deny network*)' "$PWD/.venv/bin/lab" smoke
             sandbox-exec -p '(version 1)(allow default)(deny network*)' "$PWD/.venv/bin/lab" run --source fixture --suite core --variants all --gate fixture-contract
           else
-            sudo unshare --net -- env PATH="$PATH" "$PWD/.venv/bin/lab" smoke
-            sudo unshare --net -- env PATH="$PATH" "$PWD/.venv/bin/lab" run --source fixture --suite core --variants all --gate fixture-contract
+            # Root creates the network namespace, not the private evidence files.
+            sudo unshare --net --setuid="$(id -u)" --setgid="$(id -g)" -- env PATH="$PATH" "$PWD/.venv/bin/lab" smoke
+            sudo unshare --net --setuid="$(id -u)" --setgid="$(id -g)" -- env PATH="$PATH" "$PWD/.venv/bin/lab" run --source fixture --suite core --variants all --gate fixture-contract
           fi
+          .venv/bin/python - <<'PY'
+          import os
+          from pathlib import Path
+
+          evidence = [path for path in Path("runs").rglob("*") if path.is_file()]
+          assert evidence, "No synthetic evidence was produced"
+          for path in evidence:
+              assert path.stat().st_uid == os.getuid(), f"Unexpected evidence owner: {path}"
+              with path.open("rb") as source:
+                  source.read(1)
+          print(f"Evidence owner/readability: {len(evidence)} files OK")
+          PY
       - uses: actions/upload-artifact@v4
         if: always()
         with:
